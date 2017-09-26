@@ -35,6 +35,7 @@
 	.globl	console_core_init
 	.globl	console_core_putc
 	.globl	console_core_getc
+	.globl	console_core_flush
 
 	/* -----------------------------------------------
 	 * int console_core_init(unsigned long base_addr,
@@ -59,8 +60,18 @@ func console_core_init
 
 	/* Program the baudrate */
 	/* Divisor =  Uart clock / (16 * baudrate) */
-	lsl	w2, w2, #4
-	udiv	w2, w1, w2
+	lsl	w3, w2, #4    // w1 = clock rate, w2 = baudrate, w3 = w2*16
+
+	/* fix the div value issue */
+	udiv	w4, w1, w3  // w4=div=w1:w3
+
+	/* find remainder*/
+	msub	w1, w4, w3, w1  // w1 = w1-w4*w3
+	cmp	w1, w2, lsl 3       // if w1> (w2*8) --> w3= 1;
+	cset	w3, cs
+	add	w4, w4, w3
+	mov w2, w4                //final div = w2
+
 	and	w1, w2, #0xff		/* w1 = DLL */
 	lsr	w2, w2, #8
 	and	w2, w2, #0xff		/* w2 = DLLM */
@@ -80,7 +91,7 @@ func console_core_init
 	mov	w3, #0
 	str	w3, [x0, #UARTIER]
 	/* enable fifo, DMA */
-	mov	w3, #(UARTFCR_FIFOEN | UARTFCR_DMAEN)
+	mov	w3, #(UARTFCR_FIFOEN | UARTFCR_TXCLR | UARTFCR_RXCLR)
 	str	w3, [x0, #UARTFCR]
 	/* DTR + RTS */
 	mov	w3, #3
@@ -114,9 +125,11 @@ func console_core_putc
 	b.ne	1b
 	mov	w2, #0xD		/* '\r' */
 	str	w2, [x1, #UARTTX]
-	ldr	w2, [x1, #UARTFCR]
-	orr	w2, w2, #UARTFCR_TXCLR
-	str	w2, [x1, #UARTFCR]
+
+	// latest fix
+	//ldr	w2, [x1, #UARTFCR]
+	//orr	w2, w2, #UARTFCR_TXCLR
+	//str	w2, [x1, #UARTFCR]
 
 	/* Check if the transmit FIFO is full */
 2:	ldr	w2, [x1, #UARTLSR]
@@ -124,9 +137,12 @@ func console_core_putc
 	cmp	w2, #(UARTLSR_TEMT | UARTLSR_THRE)
 	b.ne	2b
 	str	w0, [x1, #UARTTX]
-	ldr	w2, [x1, #UARTFCR]
-	orr	w2, w2, #UARTFCR_TXCLR
-	str	w2, [x1, #UARTFCR]
+
+	// latest fix
+	//ldr	w2, [x1, #UARTFCR]
+	//orr	w2, w2, #UARTFCR_TXCLR
+	//str	w2, [x1, #UARTFCR]
+
 	ret
 putc_error:
 	mov	w0, #-1
@@ -153,3 +169,10 @@ getc_error:
 	mov	w0, #-1
 	ret
 endfunc console_core_getc
+
+func console_core_flush
+	/* Placeholder */
+	mov	w0, #0
+	ret
+endfunc console_core_flush
+
