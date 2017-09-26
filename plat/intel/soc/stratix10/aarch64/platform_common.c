@@ -31,22 +31,25 @@
 #include <arm_gic.h>
 #include <bl_common.h>
 #include <debug.h>
-#include <platform_def.h>
 #include <xlat_tables.h>
-#include <stratix10_soc_def.h>
 
+#include <platform_def.h>
 /* Table of regions to map using the MMU.  */
 const mmap_region_t plat_mmap[] = {
 	MAP_REGION_FLAT(DRAM_BASE, DRAM_SIZE,
-			MT_MEMORY | MT_RW | MT_SECURE),
+			MT_MEMORY | MT_RW | MT_NS),
 	MAP_REGION_FLAT(DEVICE1_BASE, DEVICE1_SIZE,
-			MT_DEVICE | MT_RW | MT_SECURE),
+			MT_DEVICE | MT_RW | MT_NS),
 	MAP_REGION_FLAT(DEVICE2_BASE, DEVICE2_SIZE,
-			MT_DEVICE | MT_RW | MT_SECURE),
+			MT_DEVICE | MT_RW | MT_NS),
 	MAP_REGION_FLAT(OCRAM_BASE, OCRAM_SIZE,
 			MT_MEMORY | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(DEVICE3_BASE, DEVICE3_SIZE,
-			MT_DEVICE | MT_RW | MT_SECURE),
+			MT_DEVICE | MT_RW | MT_NS),
+ 	MAP_REGION_FLAT(MEM64_BASE, MEM64_SIZE,
+			MT_MEMORY | MT_RW | MT_NS),
+	MAP_REGION_FLAT(DEVICE4_BASE, DEVICE4_SIZE,
+			MT_DEVICE | MT_RW | MT_NS),
 	{ 0 }
 
 };
@@ -80,6 +83,7 @@ const mmap_region_t plat_mmap[] = {
 
 /* Define EL3 variants of the function initialising the MMU */
 DEFINE_CONFIGURE_MMU_EL(3)
+DEFINE_CONFIGURE_MMU_EL(1)
 
 unsigned int plat_get_syscnt_freq2(void)
 {

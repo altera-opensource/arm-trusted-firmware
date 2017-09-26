@@ -31,7 +31,7 @@
 #define __PLAT_MACROS_S__
 
 #include <arm_macros.S>
-#include <stratix10_soc_def.h>
+#include <platform_def.h>
 
 	/* ---------------------------------------------
 	 * The below required platform porting macro

@@ -36,10 +36,32 @@
 #include <debug.h>
 #include <mmio.h>
 #include <platform.h>
+#include <delay_timer.h>
+#include <generic_delay_timer.h>
+#include <console_printf.h>
 #include <platform_def.h>
 #include <platform_private.h>
-#include <stratix10_soc_def.h>
 
+#include "Base.h"
+#include "Altera_Hps_Socal.h"
+#include "soc/Ethernet.h"
+#include "soc/Handoff.h"
+#include "soc/ResetManager.h"
+#include "soc/MemoryController.h"
+#include "soc/Pinmux.h"
+#include "soc/ClockManager.h"
+#include "soc/SystemManager.h"
+#include "soc/Board.h"
+#include "mmc/SdMmc.h"
+#include "nand/NandLib.h"
+
+typedef enum {
+	BOOT_SOURCE_SDMMC = 0,
+    BOOT_SOURCE_FPGA,
+    BOOT_SOURCE_NAND,
+    BOOT_SOURCE_RSVD,
+	BOOT_SOURCE_QSPI,
+} BOOT_SOURCE_TYPE;
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
@@ -92,6 +114,79 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 		return NULL;
 }
 
+void SerialPortDisplayInfoForTheFirstTime (void)
+{
+  INFO("Arm Trusted Firmware for S10 SOC FPGA\n");
+  // Display System Manager Info
+  DisplaySystemManagerInfo ();
+
+  // Display Reset Manager Info
+  DisplayResetManagerInfo ();
+
+  // Display PinMux Info
+  //DisplayIo48PinMuxInfo ();
+
+  // Display Clock Manager Info
+  DisplayClockManagerInfo ();
+
+}
+
+void enable_nonsecure_access (void)
+{
+	// this enables nonsecure access to UART0
+	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                  ALT_NOC_FW_L4_PER_SCR_UART0_OFST,
+				  0x1);
+
+    // enables nonsecure MPU accesses to SDMMC
+	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                  ALT_NOC_FW_L4_PER_SCR_SDMMC_OFST,
+                  0x1);
+
+	// enables nonsecure access to all the emacs
+	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+	              ALT_NOC_FW_L4_PER_SCR_EMAC0_OFST,
+				  0x1 | BIT24 | BIT16);
+	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+	              ALT_NOC_FW_L4_PER_SCR_EMAC1_OFST,
+				  0x1 | BIT24 | BIT16 );
+	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+	              ALT_NOC_FW_L4_PER_SCR_EMAC2_OFST,
+				  0x1 | BIT24 | BIT16 );
+
+	mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+	              ALT_NOC_FW_L4_SYS_SCR_EMAC0RX_ECC_OFST,
+				  0x1 | BIT24 | BIT16 );
+	mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+	              ALT_NOC_FW_L4_SYS_SCR_EMAC0TX_ECC_OFST,
+				  0x1 | BIT24 | BIT16 );
+
+	// this enables nonsecure access to OCRAM ECC for flash DMA transaction AXI API & MPU
+	mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+	              ALT_NOC_FW_L4_SYS_SCR_OCRAM_ECC_OFST,
+	              ALT_NOC_FW_L4_SYS_SCR_OCRAM_ECC_AXI_AP_SET_MSK |
+			      ALT_NOC_FW_L4_SYS_SCR_OCRAM_ECC_MPU_SET_MSK);
+
+	// disable ocram security at CCU, temporary hack
+	mmio_clrbits_32(ALT_CCU_NOC_OFST +
+	                 ALT_CCU_NOC_BRIDGE_CPU0_MPRT_0_37_AM_ADMASK_MEM_RAM_SPRT_RAMSPACE0_0_OFST,
+					 0x03);
+	mmio_clrbits_32(ALT_CCU_NOC_OFST +
+	                 ALT_CCU_NOC_BRIDGE_IOM_MPRT_5_63_AM_ADMASK_MEM_RAM_SPRT_RAMSPACE0_0_OFST,
+					 0x03);
+}
+
+BOOT_SOURCE_TYPE GetBootSourceTypeHandoff (handoff *hoff_ptr)
+{
+  return hoff_ptr->boot_source;
+}
+
+BOOT_SOURCE_TYPE GetBootSourceType (void)
+{
+  return BOOT_SOURCE;
+}
+
+
 /*******************************************************************************
  * Perform any BL3-1 early platform setup. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
@@ -103,8 +198,84 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			       void *plat_params_from_bl2)
 {
+	BOOT_SOURCE_TYPE  BootSourceType;
+#ifndef VIRTUAL_PLATFORM
+ #ifndef ENABLE_HANDOFF
+	console_printf("handoff is disabled\n");
+	ConfigPinMux();
+	ConfigureClockManager ();
+	BootSourceType = GetBootSourceType();
+ #else
+	console_printf("verify handoff image\n");
+	handoff *handoff_ptr = (handoff*) PLAT_HANDOFF_OFFSET;
+	handoff reverse_handoff_ptr;
+	if (verify_handoff_image(handoff_ptr, &reverse_handoff_ptr))  {
+		console_printf("invalid hand off image\n");
+		return;
+	}
+	ConfigPinMuxHandoff(&reverse_handoff_ptr);
+	ConfigureClockManagerHandoff (&reverse_handoff_ptr);
+	// Detect Boot Source Type
+    BootSourceType = GetBootSourceTypeHandoff (&reverse_handoff_ptr);
+ #endif
+
+    // Reset Deassertion through the Reset Manager
+	DeassertPeripheralsReset ();
+	// Reset manager handshake with other modules before warm reset.
+	ConfigureHpsSubsystemHandshakeBehaviorBeforeWarmReset ();
+
+ #ifdef EMULATOR
+	// enable pin mux USE FPGA
+	console_printf("enable pin mux USE FPGA\n");
+	mmio_write_32 (ALT_PINMUX_OFST + ALT_PINMUX_PINMUX_UART0_USEFPGA_OFST, 0x1);
+	mmio_write_32 (ALT_PINMUX_OFST + ALT_PINMUX_PINMUX_UART1_USEFPGA_OFST, 0x1);
+	mmio_write_32 (ALT_PINMUX_OFST + ALT_PINMUX_PINMUX_SDMMC_USEFPGA_OFST, 0x1);
+ #endif
+	// enable nonsecure access
+	enable_nonsecure_access ();
+	// init some emac registers that cannot be done in EL2
+	emac_init();
+
+#else
+	BootSourceType = GetBootSourceType();
+    // Reset Deassertion through the Reset Manager
+	DeassertPeripheralsReset ();
+#endif
+	// init uart console
 	console_init(PLAT_UART0_BASE, PLAT_UART_CLOCK, PLAT_BAUDRATE);
-	VERBOSE("bl31_setup\n");
+	// display console
+	SerialPortDisplayInfoForTheFirstTime ();
+	// init timer
+	INFO ("Init Timer\n");
+	plat_delay_timer_init();
+	//udelay (1000);
+	// init DDR
+	INFO ("Init Hard Memory Controller\n");
+	InitHardMemoryController ();
+	DisplayMemoryInfo ();
+
+    // Flash Device initialization
+    switch (BootSourceType)
+    {
+      case BOOT_SOURCE_NAND:
+        // Init NAND
+        NandInit ();
+        break;
+      case BOOT_SOURCE_SDMMC:
+        // Init SDMMC
+        InitSdMmc();
+        break;
+      case BOOT_SOURCE_RSVD:
+      case BOOT_SOURCE_FPGA:
+      default:
+        // No Flash device.
+        INFO ("No Flash Device Available!\r\n");
+        break;
+    }
+
+	BoardSpecificInitialization ();
+
+	//LoadBootImageFile ("PEI.fd", PLAT_NS_IMAGE_OFFSET);
 
 #if RESET_TO_BL31
 	/* There are no parameters from BL2 if BL31 is a reset vector */
@@ -165,12 +336,10 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
-	plat_delay_timer_init();
-
+	INFO ("Initialize the gic cpu and distributor interfaces\n");
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_gic_driver_init();
 	plat_arm_gic_init();
-
 }
 
 /*******************************************************************************
@@ -185,5 +354,6 @@ void bl31_plat_arch_setup(void)
 			       BL31_RO_LIMIT,
 			       BL31_COHERENT_RAM_BASE,
 			       BL31_COHERENT_RAM_LIMIT);
+
 }
 

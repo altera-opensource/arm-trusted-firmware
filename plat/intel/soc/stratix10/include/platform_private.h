@@ -41,6 +41,13 @@ void plat_configure_mmu_el3(unsigned long total_base,
 			    unsigned long,
 			    unsigned long);
 
+void plat_configure_mmu_el1(unsigned long total_base,
+			    unsigned long total_size,
+			    unsigned long,
+			    unsigned long,
+			    unsigned long,
+			    unsigned long);
+
 void plat_gic_driver_init(void);
 
 void plat_arm_gic_init(void);

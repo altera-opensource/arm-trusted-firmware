@@ -32,6 +32,17 @@
 #define __PLATFORM_DEF_H__
 
 /*******************************************************************************
+ * User configuration
+ ******************************************************************************/
+//#define EMULATOR
+//#define VIRTUAL_PLATFORM
+#define ENABLE_HANDOFF
+#define PLAT_SEMIHOSTING_ENABLE
+#define PLAT_NS_IMAGE_OFFSET			0x50000
+#define PLAT_HANDOFF_OFFSET 			0xFFE3F000
+#define BOOT_SOURCE                     BOOT_SOURCE_SDMMC
+
+/*******************************************************************************
  * Platform binary types for linking
  ******************************************************************************/
 #define PLATFORM_LINKER_FORMAT			"elf64-littleaarch64"
@@ -41,23 +52,51 @@
  * Generic platform constants
  ******************************************************************************/
 #define PLAT_PRIMARY_CPU			0
+#define PLAT_SECONDARY_ENTRY_BASE            0x01f78bf0
 
 /* Size of cacheable stacks */
-#define PLATFORM_STACK_SIZE			0x800
+#define PLATFORM_STACK_SIZE			0x7000
 
-#define FIRMWARE_WELCOME_STR			"Booting Intel Trusted Firmware\n"
-
-#define PLATFORM_MAX_AFFLVL			MPIDR_AFFLVL2
+/* PSCI related constant */
+#define PLAT_NUM_POWER_DOMAINS		5
+#define PLAT_MAX_PWR_LVL		1
+#define PLAT_MAX_RET_STATE		1
+#define PLAT_MAX_OFF_STATE		2
 #define PLATFORM_SYSTEM_COUNT			1
-#define PLATFORM_CLUSTER_COUNT			2
+#define PLATFORM_CLUSTER_COUNT			1
 #define PLATFORM_CLUSTER0_CORE_COUNT		4
-#define PLATFORM_CLUSTER1_CORE_COUNT		2
+#define PLATFORM_CLUSTER1_CORE_COUNT		0
 #define PLATFORM_CORE_COUNT			(PLATFORM_CLUSTER1_CORE_COUNT + \
 						PLATFORM_CLUSTER0_CORE_COUNT)
 #define PLATFORM_MAX_CPUS_PER_CLUSTER		4
-#define PLATFORM_NUM_AFFS			(PLATFORM_SYSTEM_COUNT + \
-						PLATFORM_CLUSTER_COUNT + \
-						PLATFORM_CORE_COUNT)
+
+/* Interrupt related constant */
+
+#define ARM_IRQ_SEC_PHY_TIMER		29
+
+#define ARM_IRQ_SEC_SGI_0		8
+#define ARM_IRQ_SEC_SGI_1		9
+#define ARM_IRQ_SEC_SGI_2		10
+#define ARM_IRQ_SEC_SGI_3		11
+#define ARM_IRQ_SEC_SGI_4		12
+#define ARM_IRQ_SEC_SGI_5		13
+#define ARM_IRQ_SEC_SGI_6		14
+#define ARM_IRQ_SEC_SGI_7		15
+
+#define PLAT_GROUP0_IRQS		ARM_IRQ_SEC_SGI_0,		\
+					ARM_IRQ_SEC_SGI_6
+
+#define PLAT_GROUP1_IRQS		ARM_IRQ_SEC_PHY_TIMER,		\
+					ARM_IRQ_SEC_SGI_1,		\
+					ARM_IRQ_SEC_SGI_2,		\
+					ARM_IRQ_SEC_SGI_3,		\
+					ARM_IRQ_SEC_SGI_4,		\
+					ARM_IRQ_SEC_SGI_5,		\
+					ARM_IRQ_SEC_SGI_7
+
+#define TSP_IRQ_SEC_PHY_TIMER		ARM_IRQ_SEC_PHY_TIMER
+#define TSP_SEC_MEM_BASE		BL32_BASE
+#define TSP_SEC_MEM_SIZE		(BL32_LIMIT - BL32_BASE + 1)
 /*******************************************************************************
  * Platform memory map related constants
  ******************************************************************************/
@@ -93,11 +132,14 @@
 #define BL31_BASE				(OCRAM_BASE)
 #define BL31_LIMIT				(OCRAM_BASE + OCRAM_SIZE)
 
+# define BL32_BASE			     0x60000000
+# define BL32_LIMIT			     0x7fffffff
+
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define ADDR_SPACE_SIZE			(1ull << 32)
-#define MAX_XLAT_TABLES			4
+#define ADDR_SPACE_SIZE			(1ull << 48)
+#define MAX_XLAT_TABLES			8
 #define MAX_MMAP_REGIONS			16
 
 /*******************************************************************************
@@ -112,7 +154,30 @@
 #define CACHE_WRITEBACK_SHIFT			6
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
-#define PLAT_NS_IMAGE_OFFSET			(DRAM_BASE + 0x1000)
+#define PLAT_GIC_BASE			(0xFFFC0000)
+#define PLAT_GICC_BASE			(PLAT_GIC_BASE + 0x2000)
+#define PLAT_GICD_BASE			(PLAT_GIC_BASE + 0x1000)
+#define PLAT_GICR_BASE			0
 
+/*******************************************************************************
+ * UART related constants
+ ******************************************************************************/
+#define PLAT_UART0_BASE		(0xFFC02000)
+#define PLAT_UART1_BASE		(0xFFC02100)
+
+#ifdef EMULATOR
+// emulator
+#define PLAT_BAUDRATE			(4800)
+#define PLAT_UART_CLOCK		(74000)
+# else
+#define PLAT_BAUDRATE			(115200)
+#define PLAT_UART_CLOCK		(100000000)
+#endif
+
+/*******************************************************************************
+ * System counter frequency related constants
+ ******************************************************************************/
+#define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(24000000)
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	(24)
 #endif /* __PLATFORM_DEF_H__ */
 

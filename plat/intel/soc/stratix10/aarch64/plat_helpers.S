@@ -29,11 +29,12 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
-#include <stratix10_soc_def.h>
 #include <platform_def.h>
 
 	.globl	plat_secondary_cold_boot_setup
 	.globl	platform_is_primary_cpu
+	.globl	plat_is_my_cpu_primary
+	.globl	plat_my_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
 	.globl	platform_mem_init
@@ -48,9 +49,16 @@
 	 * -----------------------------------------------------
 	 */
 func plat_secondary_cold_boot_setup
-	/* does not do cold boot for secondary CPU */
-cb_panic:
-	b	cb_panic
+	mov_imm	x0, PLAT_SECONDARY_ENTRY_BASE
+
+	/* Wait until the mailbox gets populated */
+poll_mailbox:
+	ldr	x1, [x0]
+	cbz	x1, 1f
+	br	x1
+1:
+	wfe
+	b	poll_mailbox
 endfunc plat_secondary_cold_boot_setup
 
 func platform_is_primary_cpu
@@ -59,6 +67,19 @@ func platform_is_primary_cpu
 	cset	x0, eq
 	ret
 endfunc platform_is_primary_cpu
+
+func plat_is_my_cpu_primary
+	mrs	x0, mpidr_el1
+	b   platform_is_primary_cpu
+endfunc plat_is_my_cpu_primary
+
+func plat_my_core_pos
+	mrs	x0, mpidr_el1
+	and	x1, x0, #MPIDR_CPU_MASK
+	and	x0, x0, #MPIDR_CLUSTER_MASK
+	add	x0, x1, x0, LSR #6
+	ret
+endfunc plat_my_core_pos
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)

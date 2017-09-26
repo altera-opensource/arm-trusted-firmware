@@ -29,27 +29,27 @@
  */
 
 #include <assert.h>
+#include <arch_helpers.h>
 #include <delay_timer.h>
+#include <debug.h>
 #include <mmio.h>
-#include <stratix10_soc_def.h>
+#include <platform.h>
 
-#define TIMER1_LOADCNT_OFFSET     (0x000)
-#define TIMER1_CURRENTVAL_OFFSET  (0x004)
-#define TIMER1_CONTROL_OFFSET     (0x008)
-
-#define TIMER_CTRL_ENABLE         (1 << 0)
-#define TIMER_CTRL_DISABLE        (0 << 0)
-#define TIMER_CTRL_MODE_USEDEF    (1 << 1)
-#define TIMER_CTRL_MODE_FREERUN  ~(1 << 1)
-#define TIMER_INTR_MASK           (1 << 2)
-
+#include <platform_def.h>
 /********************************************************************
  * The timer delay function
  ********************************************************************/
-uint32_t plat_get_timer_value(void)
+static uint32_t plat_get_timer_value(void)
 {
-	return mmio_read_32(PLAT_TMR_SP0_BASE + TIMER1_CURRENTVAL_OFFSET);
+	/*
+	 * Generic delay timer implementation expects the timer to be a down
+	 * counter. We apply bitwise NOT operator to the tick values returned
+	 * by read_cntpct_el0() to simulate the down counter. The value is
+	 * clipped from 64 to 32 bits.
+	 */
+	return (uint32_t)(~read_cntpct_el0());
 }
+
 static const timer_ops_t plat_timer_ops = {
 	.get_timer_value    = plat_get_timer_value,
 	.clk_mult           = 1,
@@ -58,21 +58,23 @@ static const timer_ops_t plat_timer_ops = {
 
 void plat_delay_timer_init(void)
 {
+	uint64_t cval;
+	uint32_t ctl = 0;
+	uint32_t counter_freq;
+
 	timer_init(&plat_timer_ops);
+	// enable global timer
+	mmio_write_32 (0xffd01000, 0x3);
+	// set timer counter freq
+	// this actually will be done at runtime_svc_init, which is after bl31_platform_setup. However we need it earlier. So that is why do it here.
+	counter_freq = plat_get_syscnt_freq2();
+	write_cntfrq_el0(counter_freq);
 
-	/* disable timer1 */
-	mmio_write_32(PLAT_TMR_SP0_BASE + TIMER1_CONTROL_OFFSET,
-		      TIMER_CTRL_DISABLE);
+	/* The timer will fire every 0.5 second */
+	cval = read_cntpct_el0() + (read_cntfrq_el0() >> 1);
+	write_cntps_cval_el1(cval);
 
-	/* configure the timer for user defined count mode */
-	mmio_clrbits_32(PLAT_TMR_SP0_BASE + TIMER1_CONTROL_OFFSET,
-			TIMER_CTRL_MODE_FREERUN);
-
-	/* program the timer with new count value */
-	mmio_write_32(PLAT_TMR_SP0_BASE + TIMER1_LOADCNT_OFFSET,
-		      UINT32_MAX);
-
-	/* enable timer */
-	mmio_setbits_32(PLAT_TMR_SP0_BASE + TIMER1_CONTROL_OFFSET,
-			TIMER_CTRL_ENABLE);
+	/* Enable the secure physical timer */
+	set_cntp_ctl_enable(ctl);
+	write_cntps_ctl_el1(ctl);
 }
