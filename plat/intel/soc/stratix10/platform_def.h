@@ -37,7 +37,7 @@
 //#define EMULATOR
 //#define VIRTUAL_PLATFORM
 #define ENABLE_HANDOFF
-#define PLAT_SEMIHOSTING_ENABLE
+//#define PLAT_SEMIHOSTING_ENABLE
 
 /* Define next boot image name and offset */
 #define PLAT_NS_IMAGE_NAME				"PEI.ROM"
