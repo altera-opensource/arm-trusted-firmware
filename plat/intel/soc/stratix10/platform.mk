@@ -102,4 +102,4 @@ ENABLE_PLAT_COMPAT := 0
 #Format string vulnerabilities:                             CFLAGS="-Wformat -Wformat-security"
 
 TF_CFLAGS	+= -Wformat -Wformat-security -O2 -D_FORTIFY_SOURCE=2 -fPIE -fPIC
-LDFLAGS		+= -z noexecstack -z relro -z now -pie
+LDFLAGS		+= -z noexecstack -z relro -z now
