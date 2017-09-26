@@ -38,6 +38,9 @@
 //#define VIRTUAL_PLATFORM
 #define ENABLE_HANDOFF
 #define PLAT_SEMIHOSTING_ENABLE
+
+/* Define next boot image name and offset */
+#define PLAT_NS_IMAGE_NAME				"PEI.ROM"
 #define PLAT_NS_IMAGE_OFFSET			0x50000
 #define PLAT_HANDOFF_OFFSET 			0xFFE3F000
 #define BOOT_SOURCE                     BOOT_SOURCE_SDMMC

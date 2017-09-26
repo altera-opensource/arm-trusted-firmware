@@ -264,6 +264,8 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
       case BOOT_SOURCE_SDMMC:
         // Init SDMMC
         InitSdMmc();
+		// Load next boot image
+		LoadBootImageFile (PLAT_NS_IMAGE_NAME, PLAT_NS_IMAGE_OFFSET);
         break;
       case BOOT_SOURCE_RSVD:
       case BOOT_SOURCE_FPGA:
@@ -274,8 +276,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
     }
 
 	BoardSpecificInitialization ();
-
-	//LoadBootImageFile ("PEI.fd", PLAT_NS_IMAGE_OFFSET);
 
 #if RESET_TO_BL31
 	/* There are no parameters from BL2 if BL31 is a reset vector */
