@@ -133,47 +133,214 @@ void SerialPortDisplayInfoForTheFirstTime (void)
 
 void enable_nonsecure_access (void)
 {
-	// this enables nonsecure access to UART0
-	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
-                  ALT_NOC_FW_L4_PER_SCR_UART0_OFST,
-				  0x1);
+	// enables nonsecure accesses to NAND
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_NAND_REGISTER_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_NAND_DATA_OFST,
+                      BIT0 | BIT24 | BIT16);
 
-    // enables nonsecure MPU accesses to SDMMC
-	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
-                  ALT_NOC_FW_L4_PER_SCR_SDMMC_OFST,
-                  0x1);
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_NAND_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_NAND_READ_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_NAND_WRITE_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
 
-	// enables nonsecure access to all the emacs
-	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
-	              ALT_NOC_FW_L4_PER_SCR_EMAC0_OFST,
-				  0x1 | BIT24 | BIT16);
-	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
-	              ALT_NOC_FW_L4_PER_SCR_EMAC1_OFST,
-				  0x1 | BIT24 | BIT16 );
-	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
-	              ALT_NOC_FW_L4_PER_SCR_EMAC2_OFST,
-				  0x1 | BIT24 | BIT16 );
 
-	mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
-	              ALT_NOC_FW_L4_SYS_SCR_EMAC0RX_ECC_OFST,
-				  0x1 | BIT24 | BIT16 );
-	mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
-	              ALT_NOC_FW_L4_SYS_SCR_EMAC0TX_ECC_OFST,
-				  0x1 | BIT24 | BIT16 );
+        // enables nonsecure accesses to USB
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_USB0_REGISTER_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_USB1_REGISTER_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_USB0_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+	              ALT_NOC_FW_L4_SYS_SCR_USB1_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
 
-	// this enables nonsecure access to OCRAM ECC for flash DMA transaction AXI API & MPU
-	mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
-	              ALT_NOC_FW_L4_SYS_SCR_OCRAM_ECC_OFST,
-	              ALT_NOC_FW_L4_SYS_SCR_OCRAM_ECC_AXI_AP_SET_MSK |
-			      ALT_NOC_FW_L4_SYS_SCR_OCRAM_ECC_MPU_SET_MSK);
+        // enables nonsecure accesses to SPI
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_SPI_MASTER0_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_SPI_MASTER1_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_SPI_SLAVE0_OFST,
+                      BIT0 | BIT24 | BIT16);
+	mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_SPI_SLAVE1_OFST,
+                      BIT0 | BIT24 | BIT16);
 
-	// disable ocram security at CCU, temporary hack
-	mmio_clrbits_32(ALT_CCU_NOC_OFST +
-	                 ALT_CCU_NOC_BRIDGE_CPU0_MPRT_0_37_AM_ADMASK_MEM_RAM_SPRT_RAMSPACE0_0_OFST,
-					 0x03);
-	mmio_clrbits_32(ALT_CCU_NOC_OFST +
-	                 ALT_CCU_NOC_BRIDGE_IOM_MPRT_5_63_AM_ADMASK_MEM_RAM_SPRT_RAMSPACE0_0_OFST,
-					 0x03);
+
+        // enables nonsecure access to all the emacs
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_EMAC0_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_EMAC1_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_EMAC2_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_EMAC0RX_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_EMAC0TX_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_EMAC1RX_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_EMAC1TX_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_EMAC2RX_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_EMAC2TX_ECC_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+
+        // enables nonsecure MPU accesses to SDMMC
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_SDMMC_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_SDMMC_ECC_OFST,
+                      BIT0 | BIT24 | BIT16);
+
+
+        // enables nonsecure accesses to GPIO
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_GPIO0_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_GPIO1_OFST,
+                      BIT0 | BIT24 | BIT16);
+
+
+        // enables nonsecure accesses to I2C
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_I2C0_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_I2C1_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_I2C2_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_I2C3_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_I2C4_OFST,
+                      BIT0 | BIT24 | BIT16);
+
+
+        // enables nonsecure accesses to SP timers
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_SP_TIMER1_OFST,
+                      BIT0 | BIT24 | BIT16);
+
+
+        // this enables nonsecure access to UART
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_UART0_OFST,
+                      BIT0 | BIT24 | BIT16);
+        mmio_write_32(ALT_NOC_FW_L4_PER_SCR_OFST +
+                      ALT_NOC_FW_L4_PER_SCR_UART1_OFST,
+                      BIT0 | BIT24 | BIT16);
+
+
+        // enables nonsecure accesses to DMA
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+	              ALT_NOC_FW_L4_SYS_SCR_DMA_ECC_OFST,
+	              BIT0 | BIT24 | BIT16);
+
+
+        // this enables nonsecure access to OCRAM ECC for flash DMA transaction AXI API, FPGA2SOC & MPU
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_OCRAM_ECC_OFST,
+                      BIT0 | BIT24 | BIT16);
+
+
+        // enables nonsecure accesses to clock manager
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_CLOCK_MANAGER_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+        // enables nonsecure accesses to io manager
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_IO_MANAGER_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+        // enables nonsecure accesses to reset manager
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_RESET_MANAGER_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+        // enables nonsecure accesses to system manager
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_SYSTEM_MANAGER_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+        // enables nonsecure accesses to osc timer
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_OSC0_TIMER_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_OSC1_TIMER_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+
+        // enables nonsecure accesses to watchdog
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_WATCHDOG0_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_WATCHDOG1_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_WATCHDOG2_OFST,
+                      BIT0 | BIT24 | BIT16 );
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+	              ALT_NOC_FW_L4_SYS_SCR_WATCHDOG3_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+        // enables nonsecure accesses to dap
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_DAP_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+        // enables nonsecure accesses to probes
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_L4_NOC_PROBES_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+        // enables nonsecure accesses to qos
+        mmio_write_32(ALT_NOC_FW_L4_SYS_SCR_OFST +
+                      ALT_NOC_FW_L4_SYS_SCR_L4_NOC_QOS_OFST,
+                      BIT0 | BIT24 | BIT16 );
+
+
+        // disable ocram security at CCU, temporary hack
+        mmio_clrbits_32(ALT_CCU_NOC_OFST +
+                        ALT_CCU_NOC_BRIDGE_CPU0_MPRT_0_37_AM_ADMASK_MEM_RAM_SPRT_RAMSPACE0_0_OFST,
+                        0x03);
+        mmio_clrbits_32(ALT_CCU_NOC_OFST +
+                        ALT_CCU_NOC_BRIDGE_IOM_MPRT_5_63_AM_ADMASK_MEM_RAM_SPRT_RAMSPACE0_0_OFST,
+                        0x03);
 }
 
 BOOT_SOURCE_TYPE GetBootSourceTypeHandoff (handoff *hoff_ptr)
