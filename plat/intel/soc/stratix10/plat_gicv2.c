@@ -53,6 +53,7 @@ void plat_gic_driver_init(void)
  *****************************************************************************/
 void plat_arm_gic_init(void)
 {
-	arm_gic_setup();
+    arm_gic_cpuif_setup();
+    arm_gic_pcpu_distif_setup();
 }
 

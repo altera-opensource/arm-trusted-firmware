@@ -366,6 +366,8 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			       void *plat_params_from_bl2)
 {
 	BOOT_SOURCE_TYPE  BootSourceType;
+
+    bl31_platform_setup();
 #ifndef VIRTUAL_PLATFORM
  #ifndef ENABLE_HANDOFF
 	console_printf("handoff is disabled\n");
