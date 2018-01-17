@@ -70,6 +70,7 @@ BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 			${SOC_S10_DIR}/soc/ClockManager.c \
 			${SOC_S10_DIR}/soc/Handoff.c \
 			${SOC_S10_DIR}/soc/Ethernet.c \
+            ${SOC_S10_DIR}/drivers/qspi/cadence_qspi.c \
 			${SOC_S10_DIR}/mmc/AlteraSdMmcMain.c \
             ${SOC_S10_DIR}/mmc/AlteraSdMmcLib.c \
             ${SOC_S10_DIR}/mmc/SdMmc.c \
