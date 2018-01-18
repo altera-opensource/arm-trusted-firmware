@@ -71,4 +71,5 @@ void mailbox_set_qspi_direct();
 int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
 				int len, int urgent, uint32_t *response);
 int mailbox_get_qspi_clock();
+void mailbox_reset_cold(void);
 #endif

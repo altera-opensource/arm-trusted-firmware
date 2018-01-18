@@ -43,6 +43,7 @@
 
 #include "Altera_Hps_Socal.h"
 #include "soc/ResetManager.h"
+#include "soc/s10_mailbox.h"
 /*******************************************************************************
  * plat handler called when a CPU is about to enter standby.
  ******************************************************************************/
@@ -165,6 +166,7 @@ static void __dead2 plat_system_reset(void)
     INFO ("assert Peripheral from Reset\r\n");
 
 	DeassertPeripheralsReset();
+    mailbox_reset_cold();
 
 	while (1)
 		wfi();
