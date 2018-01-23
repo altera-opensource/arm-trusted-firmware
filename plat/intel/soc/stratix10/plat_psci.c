@@ -75,7 +75,7 @@ int plat_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 
 	/* release core reset */
-	mmio_clrbits_32 (ALT_RSTMGR_OFST + ALT_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
+	mmio_setbits_32 (ALT_RSTMGR_OFST + ALT_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
 	return PSCI_E_SUCCESS;
 }
 
