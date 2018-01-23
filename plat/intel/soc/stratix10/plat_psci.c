@@ -44,6 +44,9 @@
 #include "Altera_Hps_Socal.h"
 #include "soc/ResetManager.h"
 #include "soc/s10_mailbox.h"
+
+uintptr_t stratix10_sec_entry;
+
 /*******************************************************************************
  * plat handler called when a CPU is about to enter standby.
  ******************************************************************************/
@@ -186,6 +189,7 @@ int plat_validate_ns_entrypoint(unsigned long ns_entrypoint)
 	VERBOSE("%s: ns_entrypoint: 0x%lx\n", __func__, ns_entrypoint);
 	return PSCI_E_SUCCESS;
 }
+
 void plat_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
 	req_state->pwr_domain_state[PSCI_CPU_PWR_LVL] = PLAT_MAX_OFF_STATE;
@@ -216,6 +220,9 @@ const plat_psci_ops_t plat_psci_pm_ops = {
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const struct plat_psci_ops **psci_ops)
 {
+	/* Save warm boot entrypoint.*/
+	stratix10_sec_entry = sec_entrypoint;
+
 	*psci_ops = &plat_psci_pm_ops;
 	return 0;
 }

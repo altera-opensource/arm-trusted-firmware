@@ -87,7 +87,7 @@ BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 
 ## change default flag value
 # indicate the reset vector address can be programmed
-PROGRAMMABLE_RESET_ADDRESS	:=	1
+PROGRAMMABLE_RESET_ADDRESS	:=	0
 # bypass BL1 and BL2
 RESET_TO_BL31 			:= 	1
 # support GCC extension format
