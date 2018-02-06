@@ -89,7 +89,6 @@ const mmap_region_t plat_mmap[] = {
 DEFINE_CONFIGURE_MMU_EL(3)
 DEFINE_CONFIGURE_MMU_EL(1)
 
-extern uintptr_t stratix10_sec_entry;
 
 unsigned int plat_get_syscnt_freq2(void)
 {
@@ -137,19 +136,3 @@ uint32_t plat_get_spsr_for_bl33_entry(void)
 	return spsr;
 }
 
-/******************************************************************************
- * Distinguishing between a warm and cold reset for the current CPU.
- *
- * See "ARM Trusted Firmware Porting Guide" for details.
- *****************************************************************************/
-uintptr_t plat_get_my_entrypoint(void)
-{
-	unsigned int cpu_id = plat_my_core_pos();
-	uint32_t mpurststat = mmio_read_32(ALT_RSTMGR_OFST + ALT_RSTMGR_MPURSTSTAT_OFST);
-
-	/* Determine if we started via warm boot. */
-	if (mpurststat & (1 << (cpu_id + ALT_RSTMGR_MPURSTSTAT_CORE0_IRQ_LSB)))
-		return stratix10_sec_entry;
-	else
-		return 0;
-}

@@ -39,6 +39,8 @@
 	.globl	plat_crash_console_putc
 	.globl	platform_mem_init
 
+	.globl plat_get_my_entrypoint
+
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
 	 *
@@ -81,6 +83,12 @@ func plat_my_core_pos
 	ret
 endfunc plat_my_core_pos
 
+func plat_get_my_entrypoint
+	adr	x1,stratix10_sec_entry
+	ldr	x0, [x1]
+	ret
+endfunc plat_get_my_entrypoint
+
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)
 	 * Function to initialize the crash console
@@ -121,3 +129,8 @@ func platform_mem_init
 endfunc platform_mem_init
 
 
+	.data
+	.align 3
+
+stratix10_sec_entry:
+	.quad 0
