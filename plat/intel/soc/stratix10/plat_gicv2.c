@@ -31,13 +31,14 @@
 #include <arm_gic.h>
 #include <bl_common.h>
 
+#include <gicv2.h>
+
 #include <platform_def.h>
 
 const unsigned int irq_sec_array[] = {
 	PLAT_GROUP0_IRQS,
 	PLAT_GROUP1_IRQS
 };
-
 
 void plat_gic_driver_init(void)
 {
@@ -54,6 +55,6 @@ void plat_gic_driver_init(void)
 void plat_arm_gic_init(void)
 {
     arm_gic_cpuif_setup();
-    arm_gic_pcpu_distif_setup();
+    arm_gic_setup();
 }
 
