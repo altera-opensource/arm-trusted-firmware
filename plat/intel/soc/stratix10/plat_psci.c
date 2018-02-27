@@ -121,13 +121,15 @@ void plat_pwr_domain_suspend(const psci_power_state_t *target_state)
  ******************************************************************************/
 void plat_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
-	unsigned int cpu_id = plat_my_core_pos();
-
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
-	/* release core reset */
-	mmio_clrbits_32 (ALT_RSTMGR_OFST + ALT_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
+
+	/* Program the gic per-cpu distributor or re-distributor interface */
+	plat_arm_gic_pcpu_init();
+
+	/* Enable the gic cpu interface */
+	plat_arm_gic_cpuif_enable();
 }
 
 /*******************************************************************************
