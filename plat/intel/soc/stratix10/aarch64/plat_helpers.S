@@ -51,6 +51,7 @@
 	 * -----------------------------------------------------
 	 */
 func plat_secondary_cold_boot_setup
+	wfe
 	mov_imm	x0, PLAT_SECONDARY_ENTRY_BASE
 
 	/* Wait until the mailbox gets populated */
@@ -59,7 +60,6 @@ poll_mailbox:
 	cbz	x1, 1f
 	br	x1
 1:
-	wfe
 	b	poll_mailbox
 endfunc plat_secondary_cold_boot_setup
 
