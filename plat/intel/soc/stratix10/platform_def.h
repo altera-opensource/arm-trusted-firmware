@@ -58,7 +58,7 @@
 #define PLAT_SECONDARY_ENTRY_BASE            0x01f78bf0
 
 /* Size of cacheable stacks */
-#define PLATFORM_STACK_SIZE			0x7000
+#define PLATFORM_STACK_SIZE			0x5000
 
 /* PSCI related constant */
 #define PLAT_NUM_POWER_DOMAINS		5
