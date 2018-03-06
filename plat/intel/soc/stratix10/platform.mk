@@ -38,13 +38,14 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/		\
 				-I${SOC_S10_DIR}/include/Socal/
 
 PLAT_BL_COMMON_SOURCES	:=	lib/aarch64/xlat_tables.c		\
-				plat/common/aarch64/plat_common.c	\
-				plat/common/plat_gic.c
+				drivers/arm/gic/common/gic_common.c	\
+				drivers/arm/gic/v2/gicv2_main.c		\
+				drivers/arm/gic/v2/gicv2_helpers.c	\
+				plat/arm/common/arm_gicv2.c		\
+				plat/common/plat_gicv2.c		\
+				plat/common/aarch64/plat_common.c
 
 BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
-			drivers/arm/gic/arm_gic.c			\
-			drivers/arm/gic/gic_v2.c			\
-			drivers/arm/gic/gic_v3.c			\
 			drivers/console/console.S			\
 			drivers/delay_timer/delay_timer.c		\
 			drivers/delay_timer/generic_delay_timer.c  \
@@ -58,7 +59,6 @@ BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 			${SOC_S10_DIR}/aarch64/plat_helpers.S		\
 			${SOC_S10_DIR}/aarch64/platform_common.c	\
 			${SOC_S10_DIR}/bl31_plat_setup.c 		\
-			${SOC_S10_DIR}/plat_gicv2.c			\
 			${SOC_S10_DIR}/plat_psci.c			\
 			${SOC_S10_DIR}/plat_topology.c   \
 			${SOC_S10_DIR}/plat_delay_timer.c   \

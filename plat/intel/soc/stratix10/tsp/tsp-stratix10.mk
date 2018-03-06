@@ -30,9 +30,6 @@
 SOC_S10_DIR		:=	plat/intel/soc/stratix10
 
 BL32_SOURCES	+=	drivers/arm/cci/cci.c				\
-			drivers/arm/gic/arm_gic.c			\
-			drivers/arm/gic/gic_v2.c			\
-			drivers/arm/gic/gic_v3.c			\
 			drivers/console/console.S			\
 			drivers/delay_timer/delay_timer.c		\
 			drivers/ti/uart/16550_console.S			\
@@ -42,6 +39,5 @@ BL32_SOURCES	+=	drivers/arm/cci/cci.c				\
 			${SOC_S10_DIR}/aarch64/plat_helpers.S		\
 			${SOC_S10_DIR}/aarch64/platform_common.c	\
 			${SOC_S10_DIR}/plat_delay_timer.c		\
-			${SOC_S10_DIR}/plat_gicv2.c			\
 			${SOC_S10_DIR}/tsp/tsp_plat_setup.c
 

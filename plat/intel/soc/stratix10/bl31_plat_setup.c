@@ -41,6 +41,7 @@
 #include <console_printf.h>
 #include <platform_def.h>
 #include <platform_private.h>
+#include <plat_arm.h>
 
 #include "Base.h"
 #include "Altera_Hps_Socal.h"
@@ -507,7 +508,7 @@ void bl31_platform_setup(void)
 {
 	INFO ("Initialize the gic cpu and distributor interfaces\n");
 	/* Initialize the gic cpu and distributor interfaces */
-	plat_gic_driver_init();
+	plat_arm_gic_driver_init();
 	plat_arm_gic_init();
 }
 

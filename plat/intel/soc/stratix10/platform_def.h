@@ -86,17 +86,6 @@
 #define ARM_IRQ_SEC_SGI_6		14
 #define ARM_IRQ_SEC_SGI_7		15
 
-#define PLAT_GROUP0_IRQS		ARM_IRQ_SEC_SGI_0,		\
-					ARM_IRQ_SEC_SGI_6
-
-#define PLAT_GROUP1_IRQS		ARM_IRQ_SEC_PHY_TIMER,		\
-					ARM_IRQ_SEC_SGI_1,		\
-					ARM_IRQ_SEC_SGI_2,		\
-					ARM_IRQ_SEC_SGI_3,		\
-					ARM_IRQ_SEC_SGI_4,		\
-					ARM_IRQ_SEC_SGI_5,		\
-					ARM_IRQ_SEC_SGI_7
-
 #define TSP_IRQ_SEC_PHY_TIMER		ARM_IRQ_SEC_PHY_TIMER
 #define TSP_SEC_MEM_BASE		BL32_BASE
 #define TSP_SEC_MEM_SIZE		(BL32_LIMIT - BL32_BASE + 1)
@@ -182,5 +171,25 @@
  ******************************************************************************/
 #define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(24000000)
 #define PLAT_SYS_COUNTER_FREQ_IN_MHZ	(24)
+
+#define PLAT_ARM_GICD_BASE	PLAT_GICD_BASE
+#define PLAT_ARM_GICC_BASE	PLAT_GICC_BASE
+
+/*
+ * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
+ * terminology. On a GICv2 system or mode, the lists will be merged and treated
+ * as Group 0 interrupts.
+ */
+#define PLAT_ARM_G1S_IRQS	ARM_IRQ_SEC_PHY_TIMER, \
+				ARM_IRQ_SEC_SGI_0,	\
+				ARM_IRQ_SEC_SGI_1,	\
+				ARM_IRQ_SEC_SGI_2,	\
+				ARM_IRQ_SEC_SGI_3,	\
+				ARM_IRQ_SEC_SGI_4,	\
+				ARM_IRQ_SEC_SGI_5,	\
+				ARM_IRQ_SEC_SGI_6,	\
+				ARM_IRQ_SEC_SGI_7
+
+#define PLAT_ARM_G0_IRQS
 #endif /* __PLATFORM_DEF_H__ */
 

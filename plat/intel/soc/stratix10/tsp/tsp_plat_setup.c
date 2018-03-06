@@ -31,6 +31,7 @@
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
+#include <plat_arm.h>
 #include <platform_tsp.h>
 
 #include <platform_private.h>
@@ -78,7 +79,7 @@ void tsp_platform_setup(void)
 	plat_delay_timer_init();
 
 	/* Initialize the gic cpu and distributor interfaces */
-	plat_gic_driver_init();
+	plat_arm_gic_driver_init();
 	plat_arm_gic_init();
 }
 
