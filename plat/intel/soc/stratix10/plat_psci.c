@@ -45,7 +45,8 @@
 #include "soc/ResetManager.h"
 #include "soc/s10_mailbox.h"
 
-uintptr_t stratix10_sec_entry;
+extern uintptr_t stratix10_sec_entry;
+extern uintptr_t cpuid_release;
 
 /*******************************************************************************
  * plat handler called when a CPU is about to enter standby.
@@ -73,6 +74,8 @@ int plat_pwr_domain_on(u_register_t mpidr)
 
 	if (cpu_id == -1)
 		return PSCI_E_INTERN_FAIL;
+
+	cpuid_release = cpu_id;
 
 	/* release core reset */
 	mmio_setbits_32 (ALT_RSTMGR_OFST + ALT_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);

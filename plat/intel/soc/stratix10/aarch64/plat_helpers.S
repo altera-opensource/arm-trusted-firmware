@@ -40,6 +40,8 @@
 	.globl	platform_mem_init
 
 	.globl plat_get_my_entrypoint
+	.globl stratix10_sec_entry
+	.globl cpuid_release
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -51,16 +53,19 @@
 	 * -----------------------------------------------------
 	 */
 func plat_secondary_cold_boot_setup
-	wfe
-	mov_imm	x0, PLAT_SECONDARY_ENTRY_BASE
-
-	/* Wait until the mailbox gets populated */
+	/* Wait until the it gets reset signal from rstmgr gets populated */
 poll_mailbox:
+	 wfi
+
+	adr	x0, stratix10_sec_entry
 	ldr	x1, [x0]
-	cbz	x1, 1f
+	adr	x2, cpuid_release
+	ldr	x3, [x2]
+	mrs	x4, mpidr_el1
+	and	x4, x4, #0xff
+	cmp	x3, x4
+	b.ne	poll_mailbox
 	br	x1
-1:
-	b	poll_mailbox
 endfunc plat_secondary_cold_boot_setup
 
 func platform_is_primary_cpu
@@ -134,3 +139,7 @@ endfunc platform_mem_init
 
 stratix10_sec_entry:
 	.quad 0
+
+cpuid_release:
+	.quad 0
+
