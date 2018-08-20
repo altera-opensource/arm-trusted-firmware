@@ -47,6 +47,7 @@
 #include <platform_def.h>
 #include <platform_private.h>
 #include <console_printf.h>
+#include <string.h>
 
 #include "Altera_Hps_Socal.h"
 #include "Base.h"
@@ -679,6 +680,9 @@ void ConfigureHmcAdaptorRegisters (void)
                      ALT_MPFE_HMC_ADP_ECCCTRL1_AUTOWB_CNT_RST_SET(0) |
                      ALT_MPFE_HMC_ADP_ECCCTRL1_CNT_RST_SET(0) |
                      ALT_MPFE_HMC_ADP_ECCCTRL1_ECC_EN_SET(1));
+
+/* Scrub DDR */
+	memset(ALT_SDRAM_0_LB_ADDR, 0, GetPhysicalDramSize());
 
   } else {
     // No, ECC is disabled.
