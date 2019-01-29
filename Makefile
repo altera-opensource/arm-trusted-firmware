@@ -257,7 +257,12 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				plat/common/${ARCH}/platform_helpers.S	\
 				${STDLIB_SRCS}
 
-INCLUDES		+=	-Iinclude/bl1				\
+ifeq ($(notdir $(CC)),armclang)
+BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
+endif
+
+INCLUDES		+=	-Iinclude				\
+				-Iinclude/bl1				\
 				-Iinclude/bl31				\
 				-Iinclude/common			\
 				-Iinclude/common/${ARCH}		\
