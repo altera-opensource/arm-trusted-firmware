@@ -1,5 +1,5 @@
 +----------------+-------------------------------------------------------------+
-| Title          | Arm Trusted Firmware exposure to speculative processor      |
+| Title          | Trusted Firmware-A exposure to speculative processor        |
 |                | vulnerabilities using cache timing side-channels            |
 +================+=============================================================+
 | CVE ID         | `CVE-2017-5753`_ / `CVE-2017-5715`_ / `CVE-2017-5754`_      |
@@ -21,11 +21,11 @@
 | Credit         | Google / Arm                                                |
 +----------------+-------------------------------------------------------------+
 
-This security advisory describes the current understanding of the Arm Trusted
-Firmware (TF) exposure to the speculative processor vulnerabilities identified
-by `Google Project Zero`_.  To understand the background and wider impact of
-these vulnerabilities on Arm systems, please refer to the `Arm Processor
-Security Update`_.
+This security advisory describes the current understanding of the Trusted
+Firmware-A exposure to the speculative processor vulnerabilities identified by
+`Google Project Zero`_.  To understand the background and wider impact of these
+vulnerabilities on Arm systems, please refer to the `Arm Processor Security
+Update`_.
 
 Variant 1 (`CVE-2017-5753`_)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
