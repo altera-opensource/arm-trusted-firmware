@@ -158,6 +158,7 @@
 #define SDCR_SPD_DISABLE	U(0x2)
 #define SDCR_SPD_ENABLE		U(0x3)
 #define SDCR_SCCD_BIT		(U(1) << 23)
+#define SDCR_SPME_BIT		(U(1) << 17)
 #define SDCR_RESET_VAL		U(0x0)
 
 /* HSCTLR definitions */
@@ -239,6 +240,8 @@
 #define VTTBR_BADDR_SHIFT	U(0)
 
 /* HDCR definitions */
+#define HDCR_HLP_BIT		(U(1) << 26)
+#define HDCR_HPME_BIT		(U(1) << 7)
 #define HDCR_RESET_VAL		U(0x0)
 
 /* HSTR definitions */
@@ -412,8 +415,10 @@
 #define PMCR_N_SHIFT		U(11)
 #define PMCR_N_MASK		U(0x1f)
 #define PMCR_N_BITS		(PMCR_N_MASK << PMCR_N_SHIFT)
+#define PMCR_LP_BIT		(U(1) << 7)
 #define PMCR_LC_BIT		(U(1) << 6)
 #define PMCR_DP_BIT		(U(1) << 5)
+#define	PMCR_RESET_VAL		U(0x0)
 
 /*******************************************************************************
  * Definitions of register offsets, fields and macros for CPU system
