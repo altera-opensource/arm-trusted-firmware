@@ -111,7 +111,7 @@ void bl2_el3_plat_arch_setup(void)
 	info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
 
 	mailbox_init();
-
+	boot_source = 1;
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:
 		dw_mmc_init(&params, &info);
