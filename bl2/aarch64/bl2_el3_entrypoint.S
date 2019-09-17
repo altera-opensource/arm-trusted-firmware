@@ -26,7 +26,7 @@ func bl2_entrypoint
 		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS  \
 		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU      \
 		_init_memory=1                                  \
-		_init_c_runtime=0                               \
+		_init_c_runtime=1                               \
 		_exception_vectors=bl2_el3_exceptions
 
 	/* ---------------------------------------------
