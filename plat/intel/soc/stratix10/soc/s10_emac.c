@@ -1,0 +1,39 @@
+/*
+ * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+#include <mmio.h>
+#include <platform_def.h>
+#include <s10_reset_manager.h>
+#include <s10_system_manager.h>
+
+void s10_emac_init()
+{
+	mmio_setbits_32(S10_RSTMGR_PER0MODRST,
+		S10_RSTMGR_PER0MODRST_EMAC0 |
+		S10_RSTMGR_PER0MODRST_EMAC1 |
+		S10_RSTMGR_PER0MODRST_EMAC2);
+
+	mmio_clrsetbits_32(S10_SYSMGR_CORE(SYSMGR_CORE_EMAC_0),
+		SYSMGR_CORE_EMAC_PHY_INTF_SEL_MSK,
+		EMAC0_PHY_MODE);
+	mmio_clrsetbits_32(S10_SYSMGR_CORE(SYSMGR_CORE_EMAC_1),
+		SYSMGR_CORE_EMAC_PHY_INTF_SEL_MSK,
+		EMAC1_PHY_MODE);
+	mmio_clrsetbits_32(S10_SYSMGR_CORE(SYSMGR_CORE_EMAC_2),
+		SYSMGR_CORE_EMAC_PHY_INTF_SEL_MSK,
+		EMAC2_PHY_MODE);
+
+	mmio_clrbits_32(S10_SYSMGR_CORE(SYSMGR_CORE_FPGAINTF_EN_3),
+		SYSMGR_CORE_FPGAINTF_EN_3_EMAC_MSK(0) |
+		SYSMGR_CORE_FPGAINTF_EN_3_EMAC_MSK(1) |
+		SYSMGR_CORE_FPGAINTF_EN_3_EMAC_MSK(2));
+
+	mmio_clrbits_32(S10_RSTMGR_PER0MODRST,
+		S10_RSTMGR_PER0MODRST_EMAC0 |
+		S10_RSTMGR_PER0MODRST_EMAC1 |
+		S10_RSTMGR_PER0MODRST_EMAC2);
+}
+

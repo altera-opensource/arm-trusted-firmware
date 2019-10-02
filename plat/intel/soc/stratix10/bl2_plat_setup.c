@@ -24,6 +24,7 @@
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables.h>
 
+#include <s10_emac.h>
 #include "s10_memory_controller.h"
 #include "s10_reset_manager.h"
 #include "s10_clock_manager.h"
@@ -78,6 +79,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	console_16550_register(PLAT_UART0_BASE, get_uart_clk(), PLAT_BAUDRATE,
 		&console);
 
+	s10_emac_init();
 	socfpga_delay_timer_init();
 	init_hard_memory_controller();
 }

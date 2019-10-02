@@ -14,6 +14,14 @@
 #include <drivers/arm/gic_common.h>
 #include <plat/common/common_def.h>
 
+#define PHY_INTERFACE_MODE_GMII_MII		0
+#define PHY_INTERFACE_MODE_RGMII		1
+#define PHY_INTERFACE_MODE_RMII			2
+#define PHY_INTERFACE_MODE_RESET		3
+
+#define EMAC0_PHY_MODE PHY_INTERFACE_MODE_RGMII
+#define EMAC1_PHY_MODE PHY_INTERFACE_MODE_RGMII
+#define EMAC2_PHY_MODE PHY_INTERFACE_MODE_RGMII
 
 #define PLAT_CPUID_RELEASE			0xffe1b000
 #define PLAT_SEC_ENTRY				0xffe1b008

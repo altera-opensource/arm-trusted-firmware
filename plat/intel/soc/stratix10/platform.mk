@@ -40,6 +40,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/stratix10/soc/s10_handoff.c		\
 		plat/intel/soc/stratix10/soc/s10_clock_manager.c	\
 		plat/intel/soc/stratix10/soc/s10_pinmux.c		\
+		plat/intel/soc/stratix10/soc/s10_emac.c		\
 		plat/intel/soc/stratix10/soc/s10_memory_controller.c	\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		lib/cpus/aarch64/cortex_a53.S				\
