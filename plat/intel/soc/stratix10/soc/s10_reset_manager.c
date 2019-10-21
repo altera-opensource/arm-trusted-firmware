@@ -11,10 +11,13 @@
 #include <common/debug.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/console.h>
+#include <errno.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
+#include "s10_mailbox.h"
 #include "s10_reset_manager.h"
+#include "s10_system_manager.h"
 
 void deassert_peripheral_reset(void)
 {
@@ -86,3 +89,68 @@ void config_hps_hs_before_warm_reset(void)
 	mmio_setbits_32(S10_RSTMGR_HDSKEN, or_mask);
 }
 
+int socfpga_bridges_enable(void)
+{
+	uint32_t status, poll_idle;
+	uint32_t time_out = 1000;
+
+	status = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS);
+
+	if (!status) {
+		/* Clear idle request */
+		mmio_setbits_32(S10_SYSMGR_CORE(SYSMGR_NOC_IDLEREQ_CLR), ~0);
+
+		/* De-assert all bridges */
+		mmio_clrbits_32(S10_RSTMGR_BRGMODRST, ~0);
+
+		/* Wait until idle ack becomes 0 */
+		poll_idle = S10_SYSMGR_CORE(SYSMGR_NOC_IDLEACK);
+		for (int i = 0; i < time_out; i++) {
+			if (!(mmio_read_32(poll_idle)))
+				return 0;
+		}
+		return -ETIMEDOUT;
+	}
+	return status;
+}
+
+int socfpga_bridges_disable(void)
+{
+	uint32_t poll_idle, idle_data;
+	uint32_t time_out;
+
+	/* Set idle request */
+	mmio_write_32(S10_SYSMGR_CORE(SYSMGR_NOC_IDLEREQ_SET), ~0);
+
+	/* Enable NOC timeout */
+	mmio_setbits_32(SYSMGR_NOC_TIMEOUT, 1);
+
+	/* Wait until each idle ack bit toggle to 1 */
+	poll_idle = S10_SYSMGR_CORE(SYSMGR_NOC_IDLEACK);
+	for (time_out = 1000; time_out > 0; time_out--) {
+		idle_data = mmio_read_32(poll_idle) & IDLE_DATA_MASK;
+		if (idle_data == IDLE_DATA_MASK)
+			break;
+	}
+	if (!time_out)
+		return -ETIMEDOUT;
+
+	/* Wait until each idle status bit toggle to 1 */
+	poll_idle = S10_SYSMGR_CORE(SYSMGR_NOC_IDLESTATUS);
+	for (time_out = 1000; time_out > 0; time_out--) {
+		idle_data = mmio_read_32(poll_idle) & IDLE_DATA_MASK;
+		if (idle_data == IDLE_DATA_MASK)
+			break;
+	}
+	if (!time_out)
+		return -ETIMEDOUT;
+
+	/* Assert all bridges */
+	mmio_setbits_32(S10_RSTMGR_BRGMODRST,
+		~(BRGMODRST_DDRSCH_MASK | BRGMODRST_FPGA2SOC_MASK));
+
+	/* Disable NOC timeout */
+	mmio_clrbits_32(S10_SYSMGR_CORE(SYSMGR_NOC_TIMEOUT), 1);
+
+	return 0;
+}

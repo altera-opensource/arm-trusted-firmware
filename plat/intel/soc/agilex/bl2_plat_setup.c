@@ -79,6 +79,8 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	init_ncore_ccu();
 	agx_emac_init();
 	init_hard_memory_controller();
+	mailbox_init();
+	socfpga_bridges_enable();
 }
 
 
@@ -110,8 +112,6 @@ void bl2_el3_plat_arch_setup(void)
 
 	info.mmc_dev_type = MMC_IS_SD;
 	info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
-
-	mailbox_init();
 
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:
