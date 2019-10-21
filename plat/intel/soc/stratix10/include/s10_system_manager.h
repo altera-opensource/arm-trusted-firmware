@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#define S10_FIREWALL_SOC2FPGA                   0xffd21200
+#define S10_FIREWALL_LWSOC2FPGA                 0xffd21300
+
+/* L3 Interconnect Register Map */
 #define S10_NOC_FW_L4_PER_SCR_NAND_REGISTER	0xffd21000
 #define S10_NOC_FW_L4_PER_SCR_NAND_DATA		0xffd21004
 #define S10_NOC_FW_L4_PER_SCR_USB0_REGISTER	0xffd2100c
@@ -59,9 +63,12 @@
 #define S10_CCU_NOC_CPU0_RAMSPACE0_0		0xf7004688
 #define S10_CCU_NOC_IOM_RAMSPACE0_0		0xf7018628
 
+/* System Manager Register Map */
 #define S10_SYSMGR_CORE(x)			(0xffd12000 + (x))
+
 #define SYSMGR_MMC				0x28
 #define SYSMGR_MMC_DRVSEL(x)			(((x) & 0x7) << 0)
+
 #define SYSMGR_BOOT_SCRATCH_COLD_0		0x200
 #define SYSMGR_BOOT_SCRATCH_COLD_1		0x204
 #define SYSMGR_BOOT_SCRATCH_COLD_2		0x208
@@ -78,8 +85,9 @@
 #define PHY_INTERFACE_MODE_RESET        3
 #define SYSMGR_CORE_FPGAINTF_EN_3_EMAC_MSK(x)	(1 << (x * 8))
 
-
+#define DISABLE_BRIDGE_FIREWALL                 0x0ffe0101
 #define DISABLE_L4_FIREWALL	(BIT(0) | BIT(16) | BIT(24))
 
 void enable_nonsecure_access(void);
-
+void enable_ns_peripheral_access(void);
+void enable_ns_bridge_access(void);
