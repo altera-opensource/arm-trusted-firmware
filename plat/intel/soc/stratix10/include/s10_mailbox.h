@@ -17,7 +17,7 @@
 #define MBOX_INT_FLAG_RIE	0x2
 #define MBOX_INT_FLAG_UAE	0x100
 #define MBOX_COE_BIT(INTERRUPT)	((INTERRUPT) & 0x3)
-#define MBOX_UAE_BIT(INTERRUPT)	(((INTERRUPT) & (1<<4)))
+#define MBOX_UAE_BIT(INTERRUPT)	(((INTERRUPT) & (1<<8)))
 
 /* Mailbox response and status */
 #define MBOX_RESP_BUFFER_SIZE	16
