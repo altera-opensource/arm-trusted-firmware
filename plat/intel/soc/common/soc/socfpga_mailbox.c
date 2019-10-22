@@ -8,6 +8,7 @@
 #include <common/debug.h>
 
 #include "socfpga_mailbox.h"
+#include "socfpga_sip_svc.h"
 
 static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 					int len)
