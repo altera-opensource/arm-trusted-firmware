@@ -28,6 +28,9 @@
 #define PLAT_CPUID_RELEASE			0xffe1b000
 #define PLAT_SEC_ENTRY				0xffe1b008
 
+/* sysmgr.boot_scratch_cold4 & 5 used for CPU release address for SPL */
+#define PLAT_CPU_RELEASE_ADDR			0xffd12210
+
 /* Define next boot image name and offset */
 #define PLAT_NS_IMAGE_OFFSET			0x10000000
 #define PLAT_HANDOFF_OFFSET			0xFFE3F000
