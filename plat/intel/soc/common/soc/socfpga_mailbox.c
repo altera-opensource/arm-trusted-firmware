@@ -7,7 +7,7 @@
 #include <lib/mmio.h>
 #include <common/debug.h>
 
-#include "agilex_mailbox.h"
+#include "socfpga_mailbox.h"
 
 static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 					int len)

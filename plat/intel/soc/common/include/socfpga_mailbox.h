@@ -1,37 +1,37 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __S10_MBOX__
-#define __S10_MBOX__
+#ifndef SOCFPGA_MBOX_H
+#define SOCFPGA_MBOX_H
 
-#define MBOX_OFFSET		0xffa30000
+#define MBOX_OFFSET			0xffa30000
 
-#define MBOX_ATF_CLIENT_ID	0x1
-#define MBOX_JOB_ID		0x1
+#define MBOX_ATF_CLIENT_ID		0x1
+#define MBOX_JOB_ID			0x1
 
 /* Mailbox interrupt flags and masks */
-#define MBOX_INT_FLAG_COE	0x1
-#define MBOX_INT_FLAG_RIE	0x2
-#define MBOX_INT_FLAG_UAE	0x100
-#define MBOX_COE_BIT(INTERRUPT)	((INTERRUPT) & 0x3)
-#define MBOX_UAE_BIT(INTERRUPT)	(((INTERRUPT) & (1<<8)))
+#define MBOX_INT_FLAG_COE		0x1
+#define MBOX_INT_FLAG_RIE		0x2
+#define MBOX_INT_FLAG_UAE		0x100
+#define MBOX_COE_BIT(INTERRUPT)		((INTERRUPT) & 0x3)
+#define MBOX_UAE_BIT(INTERRUPT)		(((INTERRUPT) & (1<<8)))
 
 /* Mailbox response and status */
-#define MBOX_RESP_BUFFER_SIZE	16
-#define MBOX_RESP_ERR(BUFFER)	((BUFFER) & 0x00000fff)
-#define MBOX_RESP_LEN(BUFFER)	(((BUFFER) & 0x007ff000) >> 12)
+#define MBOX_RESP_BUFFER_SIZE		16
+#define MBOX_RESP_ERR(BUFFER)		((BUFFER) & 0x00000fff)
+#define MBOX_RESP_LEN(BUFFER)		(((BUFFER) & 0x007ff000) >> 12)
 #define MBOX_RESP_CLIENT_ID(BUFFER)	(((BUFFER) & 0xf0000000) >> 28)
 #define MBOX_RESP_JOB_ID(BUFFER)	(((BUFFER) & 0x0f000000) >> 24)
-#define MBOX_STATUS_UA_MASK	(1<<8)
+#define MBOX_STATUS_UA_MASK		(1<<8)
 
 /* Mailbox command and response */
-#define MBOX_CMD_FREE_OFFSET	0x14
-#define MBOX_CMD_BUFFER_SIZE	32
+#define MBOX_CMD_FREE_OFFSET		0x14
+#define MBOX_CMD_BUFFER_SIZE		32
 #define MBOX_CLIENT_ID_CMD(CLIENT_ID)	((CLIENT_ID) << 28)
-#define MBOX_JOB_ID_CMD(JOB_ID)	(JOB_ID<<24)
+#define MBOX_JOB_ID_CMD(JOB_ID)		(JOB_ID<<24)
 #define MBOX_CMD_LEN_CMD(CMD_LEN)	((CMD_LEN) << 12)
 #define MBOX_INDIRECT			(1 << 11)
 #define MBOX_INSUFFICIENT_BUFFER	-2
@@ -125,4 +125,4 @@ void mailbox_reset_cold(void);
 
 uint32_t intel_mailbox_get_config_status(uint32_t cmd);
 
-#endif
+#endif /* SOCFPGA_MBOX_H */

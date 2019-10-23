@@ -8,9 +8,10 @@
 #include <errno.h>
 #include <lib/mmio.h>
 
-#include "agilex_mailbox.h"
 #include "agilex_reset_manager.h"
 #include "agilex_system_manager.h"
+
+#include "socfpga_mailbox.h"
 
 void deassert_peripheral_reset(void)
 {

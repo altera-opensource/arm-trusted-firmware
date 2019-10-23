@@ -15,9 +15,9 @@
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-#include "s10_mailbox.h"
 #include "s10_reset_manager.h"
 #include "s10_system_manager.h"
+#include "socfpga_mailbox.h"
 
 void deassert_peripheral_reset(void)
 {
