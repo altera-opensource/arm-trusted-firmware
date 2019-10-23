@@ -14,7 +14,6 @@
 #include <drivers/synopsys/dw_mmc.h>
 #include <drivers/ti/uart/uart_16550.h>
 #include <lib/xlat_tables/xlat_tables.h>
-#include <platform_def.h>
 
 #include <agilex_emac.h>
 #include "agilex_clock_manager.h"
@@ -22,7 +21,6 @@
 #include "agilex_pinmux.h"
 #include "agilex_reset_manager.h"
 #include "agilex_system_manager.h"
-
 #include "ccu/ncore_ccu.h"
 #include "qspi/cadence_qspi.h"
 #include "socfpga_handoff.h"
