@@ -76,7 +76,9 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	agx_emac_init();
 	init_hard_memory_controller();
 	mailbox_init();
-	socfpga_bridges_enable();
+
+	if (!intel_mailbox_is_fpga_not_ready())
+		socfpga_bridges_enable();
 }
 
 
