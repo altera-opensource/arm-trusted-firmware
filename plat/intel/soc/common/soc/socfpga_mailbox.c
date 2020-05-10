@@ -86,7 +86,7 @@ int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len)
 int mailbox_poll_response(uint32_t job_id, int urgent, uint32_t *response,
 				int resp_len)
 {
-	int timeout = 0xFFFFFF;
+	int timeout = 40;
 	int rin = 0;
 	int rout = 0;
 	int resp_data = 0;
@@ -94,11 +94,13 @@ int mailbox_poll_response(uint32_t job_id, int urgent, uint32_t *response,
 
 	while (1) {
 
-		while (timeout > 0 &&
-			!(mmio_read_32(MBOX_OFFSET +
-				MBOX_DOORBELL_FROM_SDM) & 1)) {
-			timeout--;
-		}
+		do {
+			if (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM)
+			    & 1)
+				break;
+			else
+				mdelay(25);
+		} while (--timeout);
 
 		if (!timeout) {
 			INFO("Timed out waiting for SDM\n");
@@ -160,7 +162,7 @@ int iterate_resp(int mbox_resp_len, uint32_t *resp_buf, int resp_len)
 	int rout = mmio_read_32(MBOX_OFFSET + MBOX_ROUT);
 
 	while (mbox_resp_len) {
-		timeout = 0xFFFFFF;
+		timeout = 40;
 		mbox_resp_len--;
 		resp_data = mmio_read_32(MBOX_OFFSET +
 					MBOX_RESP_BUFFER +
@@ -176,9 +178,12 @@ int iterate_resp(int mbox_resp_len, uint32_t *resp_buf, int resp_len)
 		mmio_write_32(MBOX_OFFSET + MBOX_ROUT, rout);
 
 		do {
-			timeout--;
 			rin = mmio_read_32(MBOX_OFFSET + MBOX_RIN);
-		} while ((rout == rin) && (mbox_resp_len) && (timeout));
+			if (rout == rin)
+				mdelay(25);
+			else
+				break;
+		} while (mbox_resp_len && --timeout);
 
 		if (!timeout) {
 			INFO("Timed out waiting for SDM\n");
