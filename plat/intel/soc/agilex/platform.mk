@@ -62,6 +62,7 @@ BL31_SOURCES	+=	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/common/plat_psci_common.c				\
 		plat/intel/soc/agilex/bl31_plat_setup.c 		\
+		plat/intel/soc/common/socfpga_fcs.c			\
 		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_sip_svc.c			\
 		plat/intel/soc/common/socfpga_topology.c		\
