@@ -36,11 +36,23 @@
 #define INTEL_SIP_SMC_RSU_NOTIFY			0xC200000E
 #define INTEL_SIP_SMC_RSU_RETRY_COUNTER			0xC200000F
 
-/* Send Mailbox Command */
-#define INTEL_SIP_SMC_MBOX_SEND_CMD			0xC200001E
+/* Generic Command */
+#define INTEL_SIP_SMC_SERVICE_COMPLETED			0xC200001E
+
+/* Mailbox Command */
+#define INTEL_SIP_SMC_MBOX_SEND_CMD			0xC200003C
+
+/* FPGA Crypto Services */
+#define INTEL_SIP_SMC_FCS_RANDOM_NUMBER			0xC200005A
+#define INTEL_SIP_SMC_FCS_CRYPTION			0x4200005B
+#define INTEL_SIP_SMC_FCS_SERVICE_REQUEST		0x4200005C
+#define INTEL_SIP_SMC_FCS_SEND_CERTIFICATE		0x4200005D
+#define INTEL_SIP_SMC_FCS_GET_PROVISION_DATA		0xC200005E
 
 
 /* SiP Definitions */
+
+#define MAX_SVC_COMPLETED				0xF
 
 /* FPGA config helpers */
 #define INTEL_SIP_SMC_FPGA_CONFIG_ADDR			0x400000
@@ -69,6 +81,7 @@ struct fpga_config_info {
 typedef enum {
 	FULL_CONFIG = 0,
 	PARTIAL_CONFIG,
+	BITSTREAM_AUTH
 } config_type;
 
 /* Function Definitions */
