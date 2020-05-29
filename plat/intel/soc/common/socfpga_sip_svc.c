@@ -19,9 +19,10 @@
 #define FPGA_CONFIG_BUFFER_SIZE 4
 
 static int current_block, current_buffer;
-static int read_block, max_blocks, is_partial_reconfig;
+static int read_block, max_blocks;
 static uint32_t send_id, rcv_id;
 static uint32_t bytes_per_block, blocks_submitted;
+static bool is_full_reconfig;
 
 
 /*  SiP Service UUID */
@@ -96,8 +97,9 @@ static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
 
 	if (query_type != 1) {
 		/* full reconfiguration */
-		if (!is_partial_reconfig)
+		if (is_full_reconfig) {
 			socfpga_bridges_enable();	/* Enable bridge */
+		}
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
@@ -181,12 +183,16 @@ static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 	return status;
 }
 
-static int intel_fpga_config_start(uint32_t config_type)
+static int intel_fpga_config_start(uint32_t type)
 {
 	uint32_t response[3];
 	int status = 0;
 
-	is_partial_reconfig = config_type;
+	config_type config = type;
+
+	if (config == FULL_CONFIG) {
+		is_full_reconfig = true;
+	}
 
 	mailbox_clear_response();
 
@@ -216,7 +222,7 @@ static int intel_fpga_config_start(uint32_t config_type)
 	current_buffer = 0;
 
 	/* full reconfiguration */
-	if (!is_partial_reconfig) {
+	if (is_full_reconfig) {
 		/* Disable bridge */
 		socfpga_bridges_disable();
 	}
