@@ -10,6 +10,7 @@
 #include <lib/mmio.h>
 #include <tools_share/uuid.h>
 
+#include "socfpga_fcs.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"
@@ -185,21 +186,26 @@ static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 
 static int intel_fpga_config_start(uint32_t type)
 {
+	uint32_t argument = 0x1;
 	uint32_t response[3];
 	int status = 0;
+	unsigned int size = 0;
 
 	config_type config = type;
 
 	if (config == FULL_CONFIG) {
 		is_full_reconfig = true;
+	} else if (config == BITSTREAM_AUTH) {
+		size = 1;
 	}
 
 	mailbox_clear_response();
 
-	mailbox_send_cmd(1U, MBOX_CMD_CANCEL, NULL, 0U, CMD_CASUAL, NULL, 0U);
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_CANCEL, NULL, 0U,
+			CMD_CASUAL, NULL, 0U);
 
-	status = mailbox_send_cmd(1U, MBOX_RECONFIG, NULL, 0U, CMD_CASUAL,
-			response, ARRAY_SIZE(response));
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RECONFIG, &argument, size,
+			CMD_CASUAL, response, ARRAY_SIZE(response));
 
 	if (status < 0)
 		return status;
@@ -414,6 +420,38 @@ static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args, uint32_t len,
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
+				uint32_t *job_id, int *resp_len,
+				uint32_t *mbox_error)
+{
+	unsigned int i;
+	int status = 0;
+	uint32_t resp_buf[MAX_SVC_COMPLETED] = {0};
+
+	if (!is_address_in_ddr_range(addr, size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	status = mailbox_read_response(job_id, resp_buf, size);
+
+	if (status == MBOX_NO_RESPONSE)
+		return INTEL_SIP_SMC_STATUS_BUSY;
+
+	if (status < 0) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	*resp_len = status;
+
+	for (i = 0; i < *resp_len; i++) {
+		mmio_write_32(addr, resp_buf[i]);
+		addr += MBOX_WORD_BYTE;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 /*
  * This function is responsible for handling all SiP calls from the NS world
  */
@@ -427,12 +465,12 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			 void *handle,
 			 u_register_t flags)
 {
-	uint32_t retval = 0;
-	uint32_t status = INTEL_SIP_SMC_STATUS_OK;
-	uint32_t completed_addr[3];
-	uint64_t rsu_respbuf[9];
-	u_register_t x5, x6;
+	uint32_t retval = 0, completed_addr[3];
+	uint32_t mbox_error = 0;
+	uint64_t ret_size, rsu_respbuf[9];
+	int status = INTEL_SIP_SMC_STATUS_OK;
 	int mbox_status, len_in_resp;
+	u_register_t x5, x6;
 
 
 	switch (smc_fid) {
@@ -525,6 +563,11 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			SMC_RET2(handle, status, retval);
 		}
 
+	case INTEL_SIP_SMC_SERVICE_COMPLETED:
+		status = intel_smc_service_completed(x1, x2, &rcv_id,
+						&len_in_resp, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x1, len_in_resp);
+
 	case INTEL_SIP_SMC_MBOX_SEND_CMD:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
 		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
@@ -532,6 +575,25 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 					     (uint32_t *)x5, x6, &mbox_status,
 					     &len_in_resp);
 		SMC_RET4(handle, status, mbox_status, x5, len_in_resp);
+
+	case INTEL_SIP_SMC_FCS_CRYPTION:
+		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
+		status = intel_fcs_cryption(x1, x2, x3, x4, x5, &send_id);
+		SMC_RET3(handle, status, x4, x5);
+
+	case INTEL_SIP_SMC_FCS_RANDOM_NUMBER:
+		status = intel_fcs_random_number_gen(x1, &ret_size,
+							&mbox_error);
+		SMC_RET4(handle, status, mbox_error, x1, ret_size);
+
+	case INTEL_SIP_SMC_FCS_SEND_CERTIFICATE:
+		status = intel_fcs_send_cert(x1, x2, &send_id);
+		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_FCS_GET_PROVISION_DATA:
+		status = intel_fcs_get_provision_data(x1, &ret_size,
+							&mbox_error);
+		SMC_RET4(handle, status, mbox_error, x1, ret_size);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
