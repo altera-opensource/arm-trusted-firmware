@@ -11,6 +11,15 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 
+static bool is_size_4_bytes_aligned(uint32_t size)
+{
+	if (size % MBOX_WORD_BYTE) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
 					uint32_t *mbox_error)
 {
@@ -51,6 +60,10 @@ uint32_t intel_fcs_send_cert(uint64_t addr, uint64_t size,
 	int status;
 
 	if (!is_address_in_ddr_range(addr, size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(size)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
@@ -101,17 +114,21 @@ uint32_t intel_fcs_cryption(uint32_t mode, uint32_t src_addr,
 	int status;
 	uint32_t cmd;
 
-	if (!is_address_in_ddr_range(src_addr, src_size) ||
-		!is_address_in_ddr_range(dst_addr, dst_size)) {
-		return INTEL_SIP_SMC_STATUS_REJECTED;
-	}
-
 	fcs_crypt_payload payload = {
 		FCS_CRYPTION_DATA_0,
 		src_addr,
 		src_size,
 		dst_addr,
 		dst_size };
+
+	if (!is_address_in_ddr_range(src_addr, src_size) ||
+		!is_address_in_ddr_range(dst_addr, dst_size)) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
+
+	if (!is_size_4_bytes_aligned(sizeof(fcs_crypt_payload))) {
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
 
 	if (mode) {
 		cmd = MBOX_FCS_ENCRYPT_REQ;
