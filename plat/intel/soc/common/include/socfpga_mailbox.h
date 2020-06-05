@@ -116,6 +116,9 @@
 
 /* Mailbox Macros */
 
+#define MBOX_ENTRY_TO_ADDR(_buf, ptr)	(MBOX_OFFSET + (MBOX_##_buf##_BUFFER) \
+						+ MBOX_WORD_BYTE * (ptr))
+
 /* Mailbox interrupt flags and masks */
 #define MBOX_INT_FLAG_COE		0x1
 #define MBOX_INT_FLAG_RIE		0x2
