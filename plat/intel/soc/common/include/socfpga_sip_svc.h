@@ -40,6 +40,7 @@
 
 /* Generic Command */
 #define INTEL_SIP_SMC_SERVICE_COMPLETED			0xC200001E
+#define INTEL_SIP_SMC_HPS_SET_BRIDGES			0xC2000032
 
 /* Mailbox Command */
 #define INTEL_SIP_SMC_MBOX_SEND_CMD			0xC200003C
