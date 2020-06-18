@@ -13,8 +13,10 @@
 #include <common/tbbr/tbbr_img_def.h>
 #include <plat/common/common_def.h>
 
+/* Platform Type */
 #define PLAT_SOCFPGA_STRATIX10			1
 #define PLAT_SOCFPGA_AGILEX			2
+#define PLAT_SOCFPGA_DIAMOND_MESA		3
 
 /* sysmgr.boot_scratch_cold4 & 5 used for CPU release address for SPL */
 #define PLAT_CPU_RELEASE_ADDR			0xffd12210
