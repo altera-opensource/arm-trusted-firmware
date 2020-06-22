@@ -133,18 +133,18 @@ static int mark_last_buffer_xfer_completed(uint32_t *buffer_addr_completed)
 static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 					uint32_t *count, uint32_t *job_id)
 {
-	uint32_t status = INTEL_SIP_SMC_STATUS_OK;
-	*count = 0;
-	int resp_len = 0;
 	uint32_t resp[5];
+	unsigned int resp_len = ARRAY_SIZE(resp);
+	int status = INTEL_SIP_SMC_STATUS_OK;
 	int all_completed = 1;
+	*count = 0;
 
 	while (*count < 3) {
 
-		resp_len = mailbox_read_response(job_id,
-				resp, ARRAY_SIZE(resp));
+		status = mailbox_read_response(job_id,
+				resp, &resp_len);
 
-		if (resp_len < 0)
+		if (status < 0)
 			break;
 
 		max_blocks++;
@@ -157,8 +157,8 @@ static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 	}
 
 	if (*count <= 0) {
-		if (resp_len != MBOX_NO_RESPONSE &&
-			resp_len != MBOX_TIMEOUT && resp_len != 0) {
+		if (status != MBOX_NO_RESPONSE &&
+			status != MBOX_TIMEOUT && resp_len != 0) {
 			mailbox_clear_response();
 			return INTEL_SIP_SMC_STATUS_ERROR;
 		}
@@ -192,6 +192,7 @@ static int intel_fpga_config_start(uint32_t type)
 	uint32_t response[3];
 	int status = 0;
 	unsigned int size = 0;
+	unsigned int resp_len = ARRAY_SIZE(response);
 
 	config_type config = type;
 
@@ -207,7 +208,7 @@ static int intel_fpga_config_start(uint32_t type)
 			CMD_CASUAL, NULL, 0U);
 
 	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RECONFIG, &argument, size,
-			CMD_CASUAL, response, ARRAY_SIZE(response));
+			CMD_CASUAL, response, &resp_len);
 
 	if (status < 0)
 		return status;
@@ -409,10 +410,11 @@ static uint32_t intel_rsu_copy_dcmf_version(uint64_t dcmf_ver_1_0,
 }
 
 /* Mailbox services */
-static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args, uint32_t len,
-				    uint32_t urgent, uint32_t *response,
-				    uint32_t resp_len, int *mbox_status,
-				    int *len_in_resp)
+static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args,
+				unsigned int len,
+				uint32_t urgent, uint32_t *response,
+				unsigned int resp_len, int *mbox_status,
+				unsigned int *len_in_resp)
 {
 	*len_in_resp = 0;
 	*mbox_status = 0;
@@ -421,7 +423,7 @@ static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args, uint32_t len,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
 	int status = mailbox_send_cmd(MBOX_JOB_ID, cmd, args, len, urgent,
-				      response, resp_len);
+				      response, &resp_len);
 
 	if (status < 0) {
 		*mbox_status = -status;
@@ -429,12 +431,12 @@ static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args, uint32_t len,
 	}
 
 	*mbox_status = 0;
-	*len_in_resp = status;
+	*len_in_resp = resp_len;
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
 uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
-				uint32_t *job_id, int *resp_len,
+				uint32_t *job_id, unsigned int *resp_len,
 				uint32_t *mbox_error)
 {
 	unsigned int i;
@@ -445,21 +447,22 @@ uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
-	status = mailbox_read_response(job_id, resp_buf, size);
+	status = mailbox_read_response(job_id, resp_buf, &size);
 
 	if (status == MBOX_NO_RESPONSE)
 		return INTEL_SIP_SMC_STATUS_BUSY;
 
-	if (status < 0) {
-		*mbox_error = -status;
-		return INTEL_SIP_SMC_STATUS_ERROR;
-	}
 
-	*resp_len = status;
+	*resp_len = size;
 
 	for (i = 0; i < *resp_len; i++) {
 		mmio_write_32(addr, resp_buf[i]);
 		addr += MBOX_WORD_BYTE;
+	}
+
+	if (status != MBOX_RET_OK) {
+		*mbox_error = -status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
@@ -493,7 +496,8 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	uint32_t mbox_error = 0;
 	uint64_t ret_size, rsu_respbuf[9];
 	int status = INTEL_SIP_SMC_STATUS_OK;
-	int mbox_status, len_in_resp;
+	int mbox_status;
+	unsigned int len_in_resp;
 	u_register_t x5, x6;
 
 
