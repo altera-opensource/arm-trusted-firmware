@@ -23,20 +23,22 @@ uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
 					uint32_t *mbox_error)
 {
 	int i, status = 0;
+	uint32_t resp_len = FCS_RANDOM_WORD_SIZE;
+
 	uint32_t random_data[FCS_RANDOM_WORD_SIZE] = {0};
 
 	if (!is_address_in_ddr_range(addr, FCS_RANDOM_BYTE_SIZE))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
 	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_RANDOM_GEN, NULL, 0,
-			CMD_CASUAL, random_data, FCS_RANDOM_WORD_SIZE);
+			CMD_CASUAL, random_data, &resp_len);
 
 	if (status < 0) {
 		*mbox_error = -status;
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
-	if (status != FCS_RANDOM_WORD_SIZE) {
+	if (resp_len != FCS_RANDOM_WORD_SIZE) {
 		*mbox_error = ~0;
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
@@ -76,22 +78,23 @@ uint32_t intel_fcs_get_provision_data(uint64_t addr, uint64_t *ret_size,
 					uint32_t *mbox_error)
 {
 	int i, status = 0;
+	uint32_t resp_len = FCS_PROV_DATA_WORD_SIZE;
 	uint32_t provision_data[FCS_PROV_DATA_WORD_SIZE] = {0};
 
 	if (!is_address_in_ddr_range(addr, FCS_PROV_DATA_BYTE_SIZE))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
 	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_FCS_GET_PROVISION, NULL, 0,
-			CMD_CASUAL, provision_data, FCS_PROV_DATA_WORD_SIZE);
+			CMD_CASUAL, provision_data, &resp_len);
 
 	if (status < 0) {
 		*mbox_error = -status;
-		return status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
-	*ret_size = status * MBOX_WORD_BYTE;
+	*ret_size = resp_len * MBOX_WORD_BYTE;
 
-	for (i = 0; i < status; i++) {
+	for (i = 0; i < resp_len; i++) {
 		mmio_write_32(addr, provision_data[i]);
 		addr += MBOX_WORD_BYTE;
 	}
