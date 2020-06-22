@@ -129,7 +129,7 @@ restart_mailbox:
 }
 
 int mailbox_read_response(unsigned int *job_id, uint32_t *response,
-				unsigned int resp_len)
+				unsigned int *resp_len)
 {
 	uint32_t rin;
 	uint32_t rout;
@@ -158,9 +158,9 @@ int mailbox_read_response(unsigned int *job_id, uint32_t *response,
 
 		ret_resp_len = MBOX_RESP_LEN(resp_data);
 
-		if (ret_resp_len != 0U) {
-			ret_resp_len = iterate_resp(ret_resp_len, response,
-						    resp_len);
+		if (iterate_resp(ret_resp_len, response, resp_len)
+			!= MBOX_RET_OK) {
+			return MBOX_TIMEOUT;
 		}
 
 		if (MBOX_RESP_ERR(resp_data) > 0U) {
@@ -168,14 +168,14 @@ int mailbox_read_response(unsigned int *job_id, uint32_t *response,
 			return -MBOX_RESP_ERR(resp_data);
 		}
 
-		return ret_resp_len;
+		return MBOX_RET_OK;
 	}
 	return MBOX_NO_RESPONSE;
 }
 
 
 int mailbox_poll_response(uint32_t job_id, uint32_t urgent, uint32_t *response,
-				unsigned int resp_len)
+				unsigned int *resp_len)
 {
 	unsigned int timeout = 40U;
 	unsigned int sdm_loop = 255U;
@@ -231,10 +231,9 @@ int mailbox_poll_response(uint32_t job_id, uint32_t urgent, uint32_t *response,
 
 			ret_resp_len = MBOX_RESP_LEN(resp_data);
 
-			if (ret_resp_len != 0U) {
-				ret_resp_len = iterate_resp(ret_resp_len,
-							    response,
-							    resp_len);
+			if (iterate_resp(ret_resp_len, response, resp_len)
+				!= MBOX_RET_OK) {
+				return MBOX_TIMEOUT;
 			}
 
 			if (MBOX_RESP_ERR(resp_data) > 0U) {
@@ -242,7 +241,7 @@ int mailbox_poll_response(uint32_t job_id, uint32_t urgent, uint32_t *response,
 				return -MBOX_RESP_ERR(resp_data);
 			}
 
-			return ret_resp_len;
+			return MBOX_RET_OK;
 		}
 
 	sdm_loop--;
@@ -252,8 +251,8 @@ int mailbox_poll_response(uint32_t job_id, uint32_t urgent, uint32_t *response,
 	return MBOX_TIMEOUT;
 }
 
-unsigned int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
-			unsigned int resp_len)
+int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
+			unsigned int *resp_len)
 {
 	unsigned int timeout, total_resp_len = 0U;
 	uint32_t resp_data;
@@ -265,10 +264,10 @@ unsigned int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 		mbox_resp_len--;
 		resp_data = mmio_read_32(MBOX_ENTRY_TO_ADDR(RESP, (rout)++));
 
-		if ((resp_buf != NULL) && (resp_len != 0U)) {
+		if ((resp_buf != NULL) && (*resp_len != 0U)) {
 			*(resp_buf + total_resp_len)
 					= resp_data;
-			resp_len--;
+			*resp_len = *resp_len - 1;
 			total_resp_len++;
 		}
 		rout %= MBOX_RESP_BUFFER_SIZE;
@@ -289,7 +288,8 @@ unsigned int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 			return MBOX_TIMEOUT;
 		}
 	}
-	return total_resp_len;
+	*resp_len = total_resp_len;
+	return MBOX_RET_OK;
 }
 
 int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
@@ -314,7 +314,7 @@ int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
 
 int mailbox_send_cmd(uint32_t job_id, uint32_t cmd, uint32_t *args,
 			unsigned int len, uint32_t urgent, uint32_t *response,
-			unsigned int resp_len)
+			unsigned int *resp_len)
 {
 	int status = 0;
 
@@ -398,7 +398,7 @@ int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, unsigned int resp_buf_len)
 {
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_GET_SUBPARTITION_TABLE,
 				NULL, 0U, CMD_CASUAL, resp_buf,
-				resp_buf_len);
+				&resp_buf_len);
 }
 
 struct rsu_status_info {
@@ -420,7 +420,7 @@ int mailbox_rsu_status(uint32_t *resp_buf, unsigned int resp_buf_len)
 
 	ret = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_STATUS, NULL, 0U,
 				CMD_CASUAL, resp_buf,
-				resp_buf_len);
+				&resp_buf_len);
 
 	if (ret < 0) {
 		return ret;
@@ -475,9 +475,10 @@ int intel_mailbox_get_config_status(uint32_t cmd)
 {
 	int status;
 	uint32_t res, response[6];
+	unsigned int resp_len = ARRAY_SIZE(response);
 
 	status = mailbox_send_cmd(MBOX_JOB_ID, cmd, NULL, 0U, CMD_CASUAL,
-				response, ARRAY_SIZE(response));
+				response, &resp_len);
 
 	if (status < 0) {
 		return status;
