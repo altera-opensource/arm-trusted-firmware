@@ -445,9 +445,9 @@ uint32_t intel_smc_service_completed(uint64_t addr, uint32_t size,
 		return INTEL_SIP_SMC_STATUS_BUSY;
 
 
-	*resp_len = size;
+	*resp_len = size * MBOX_WORD_BYTE;
 
-	for (i = 0; i < *resp_len; i++) {
+	for (i = 0; i < size; i++) {
 		mmio_write_32(addr, resp_buf[i]);
 		addr += MBOX_WORD_BYTE;
 	}
