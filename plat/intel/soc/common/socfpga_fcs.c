@@ -52,6 +52,8 @@ uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
 		addr += MBOX_WORD_BYTE;
 	}
 
+	flush_dcache_range(addr - *ret_size, *ret_size);
+
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
@@ -105,6 +107,8 @@ uint32_t intel_fcs_get_provision_data(uint64_t addr, uint64_t *ret_size,
 		mmio_write_32(addr, provision_data[i]);
 		addr += MBOX_WORD_BYTE;
 	}
+
+	flush_dcache_range(addr - *ret_size, *ret_size);
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }

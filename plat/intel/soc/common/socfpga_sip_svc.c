@@ -465,6 +465,8 @@ uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
 		addr += MBOX_WORD_BYTE;
 	}
 
+	flush_dcache_range(addr - *resp_len, *resp_len);
+
 	if (status != MBOX_RET_OK) {
 		*mbox_error = -status;
 		return INTEL_SIP_SMC_STATUS_ERROR;
