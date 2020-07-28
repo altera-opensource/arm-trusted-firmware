@@ -23,7 +23,7 @@ static int current_block, current_buffer;
 static int read_block, max_blocks;
 static uint32_t send_id, rcv_id;
 static uint32_t bytes_per_block, blocks_submitted;
-static bool is_partial_reconfig;
+static bool is_full_reconfig;
 
 /* RSU DCMF version */
 static uint32_t rsu_dcmf_ver[4] = {0};
@@ -103,7 +103,7 @@ static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
 
 	if (query_type != 1) {
 		/* full reconfiguration */
-		if (is_partial_reconfig)
+		if (is_full_reconfig)
 			socfpga_bridges_enable();	/* Enable bridge */
 	}
 
@@ -195,8 +195,8 @@ static int intel_fpga_config_start(uint32_t type)
 
 	config_type config = type;
 
-	if (config == PARTIAL_CONFIG)
-		is_partial_reconfig = true;
+	if (config == FULL_CONFIG)
+		is_full_reconfig = true;
 	else if (config == BITSTREAM_AUTH)
 		size = 1;
 
@@ -229,7 +229,7 @@ static int intel_fpga_config_start(uint32_t type)
 	current_buffer = 0;
 
 	/* full reconfiguration */
-	if (is_partial_reconfig) {
+	if (is_full_reconfig) {
 		/* Disable bridge */
 		socfpga_bridges_disable();
 	}
