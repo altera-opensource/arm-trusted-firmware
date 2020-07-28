@@ -41,7 +41,7 @@ uint32_t intel_fcs_random_number_gen(uint64_t addr, uint64_t *ret_size,
 	}
 
 	if (resp_len != FCS_RANDOM_WORD_SIZE) {
-		*mbox_error = ~0U;
+		*mbox_error = GENERIC_RESPONSE_ERROR;
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 

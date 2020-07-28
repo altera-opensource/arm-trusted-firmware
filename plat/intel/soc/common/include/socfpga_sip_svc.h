@@ -15,6 +15,8 @@
 #define INTEL_SIP_SMC_STATUS_ERROR			0x4
 #define INTEL_SIP_SMC_RSU_ERROR				0x7
 
+/* SiP mailbox error code */
+#define GENERIC_RESPONSE_ERROR				0x3FF
 
 /* SMC SiP service function identifier */
 
