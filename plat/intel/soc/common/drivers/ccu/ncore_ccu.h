@@ -104,5 +104,6 @@ typedef struct coh_ss_id {
 } coh_ss_id_t;
 
 uint32_t init_ncore_ccu(void);
+void ncore_enable_ocram_firewall(void);
 
 #endif
