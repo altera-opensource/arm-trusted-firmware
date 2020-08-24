@@ -634,6 +634,10 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		rsu_max_retry = x1;
 		SMC_RET1(handle, INTEL_SIP_SMC_STATUS_OK);
 
+	case INTEL_SIP_SMC_ECC_DBE:
+		status = intel_ecc_dbe_notification(x1);
+		SMC_RET1(handle, status);
+
 	case INTEL_SIP_SMC_SERVICE_COMPLETED:
 		status = intel_smc_service_completed(x1, x2, &rcv_id,
 						&len_in_resp, &mbox_error);
