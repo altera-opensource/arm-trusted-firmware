@@ -365,6 +365,12 @@ void mailbox_qspi_set_cs(int device_select)
 				1, CMD_CASUAL, NULL, 0);
 }
 
+void mailbox_hps_qspi_enable(void)
+{
+	mailbox_set_qspi_open();
+	mailbox_set_qspi_direct();
+}
+
 void mailbox_reset_cold(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);

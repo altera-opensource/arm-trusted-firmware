@@ -150,8 +150,7 @@
 void mailbox_set_int(int interrupt_input);
 int mailbox_init(void);
 void mailbox_set_qspi_close(void);
-void mailbox_set_qspi_open(void);
-void mailbox_set_qspi_direct(void);
+void mailbox_hps_qspi_enable(void);
 int mailbox_send_cmd(uint32_t job_id, unsigned int cmd, uint32_t *args,
 				int len, int urgent, uint32_t *response,
 				uint32_t *resp_len);
