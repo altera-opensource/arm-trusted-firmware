@@ -264,7 +264,8 @@ int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 		mbox_resp_len--;
 		resp_data = mmio_read_32(MBOX_ENTRY_TO_ADDR(RESP, (rout)++));
 
-		if ((resp_buf != NULL) && (*resp_len != 0U)) {
+		if ((resp_buf != NULL) && (resp_len != NULL)
+			&& (*resp_len != 0U)) {
 			*(resp_buf + total_resp_len)
 					= resp_data;
 			*resp_len = *resp_len - 1;
@@ -288,7 +289,10 @@ int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 			return MBOX_TIMEOUT;
 		}
 	}
-	*resp_len = total_resp_len;
+
+	if (resp_len)
+		*resp_len = total_resp_len;
+
 	return MBOX_RET_OK;
 }
 
@@ -360,20 +364,20 @@ void mailbox_set_qspi_open(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_OPEN, NULL, 0U,
-				CMD_CASUAL, NULL, 0U);
+				CMD_CASUAL, NULL, NULL);
 }
 
 void mailbox_set_qspi_direct(void)
 {
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_DIRECT, NULL, 0U,
-				CMD_CASUAL, NULL, 0U);
+				CMD_CASUAL, NULL, NULL);
 }
 
 void mailbox_set_qspi_close(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_CLOSE, NULL, 0U,
-				CMD_CASUAL, NULL, 0U);
+				CMD_CASUAL, NULL, NULL);
 }
 
 void mailbox_qspi_set_cs(uint32_t device_select)
@@ -384,7 +388,7 @@ void mailbox_qspi_set_cs(uint32_t device_select)
 	cs_setting = (device_select << 28);
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_SET_CS, &cs_setting,
-				1U, CMD_CASUAL, NULL, 0U);
+				1U, CMD_CASUAL, NULL, NULL);
 }
 
 void mailbox_hps_qspi_enable(void)
@@ -397,7 +401,7 @@ void mailbox_reset_cold(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, NULL, 0U,
-				CMD_CASUAL, NULL, 0U);
+				CMD_CASUAL, NULL, NULL);
 }
 
 int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, unsigned int resp_buf_len)
@@ -445,14 +449,14 @@ int mailbox_rsu_update(uint32_t *flash_offset)
 {
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_UPDATE,
 				flash_offset, 2U,
-				CMD_CASUAL, NULL, 0U);
+				CMD_CASUAL, NULL, NULL);
 }
 
 int mailbox_hps_stage_notify(uint32_t execution_stage)
 {
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_HPS_STAGE_NOTIFY,
 				&execution_stage, 1U, CMD_CASUAL,
-				NULL, 0U);
+				NULL, NULL);
 }
 
 int mailbox_init(void)
@@ -465,7 +469,7 @@ int mailbox_init(void)
 	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0U);
 
 	status = mailbox_send_cmd(0U, MBOX_CMD_RESTART, NULL, 0U,
-					CMD_URGENT, NULL, 0U);
+					CMD_URGENT, NULL, NULL);
 
 	if (status != 0) {
 		return status;
