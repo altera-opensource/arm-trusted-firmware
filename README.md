@@ -142,3 +142,8 @@ FPGA Crypto Service (FCS)	|	No		|	Yes<sup>1</sup>	|	Yes<sup>1</sup>
 4. Vendor Authorized Boot (VAB)
 	- Not supported for TF-A + UEFI boot flow for this release
 	- BL2 -> BL31 -> UEFI -> Linux
+
+5. Double-Bit Error Handling in EL3
+	- Linux EDAC framework failure in triggering DBE handling is reported
+	- Processor cores are trapped in EL3
+	- Fixes are delayed to next release cycle
