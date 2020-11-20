@@ -213,7 +213,7 @@ static int intel_fpga_config_start(uint32_t type)
 			CMD_CASUAL, response, &resp_len);
 
 	if (status < 0)
-		return status;
+		return INTEL_SIP_SMC_STATUS_ERROR;
 
 	max_blocks = response[0];
 	bytes_per_block = response[1];
@@ -238,7 +238,7 @@ static int intel_fpga_config_start(uint32_t type)
 		socfpga_bridges_disable();
 	}
 
-	return 0;
+	return INTEL_SIP_SMC_STATUS_OK;
 }
 
 static bool is_fpga_config_buffer_full(void)
