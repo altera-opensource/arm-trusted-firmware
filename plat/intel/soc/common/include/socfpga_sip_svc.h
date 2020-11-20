@@ -27,6 +27,11 @@
 #define INTEL_SIP_SMC_FPGA_CONFIG_ISDONE		0xC2000004
 #define INTEL_SIP_SMC_FPGA_CONFIG_GET_MEM		0xC2000005
 
+/* FPGA Bitstream Flag */
+#define FLAG_PARTIAL_CONFIG				BIT(0)
+#define FLAG_AUTHENTICATION				BIT(1)
+#define CONFIG_TEST_FLAG(_flag, _type)		(((flag) & FLAG_##_type) \
+							== FLAG_##_type)
 /* Secure Register Access */
 #define INTEL_SIP_SMC_REG_READ				0xC2000007
 #define INTEL_SIP_SMC_REG_WRITE				0xC2000008
@@ -91,11 +96,6 @@ struct fpga_config_info {
 	int block_number;
 };
 
-typedef enum {
-	FULL_CONFIG = 0,
-	PARTIAL_CONFIG,
-	BITSTREAM_AUTH
-} config_type;
 
 /* Function Definitions */
 

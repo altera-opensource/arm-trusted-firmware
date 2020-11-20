@@ -23,7 +23,7 @@ static int current_block, current_buffer;
 static int read_block, max_blocks;
 static uint32_t send_id, rcv_id;
 static uint32_t bytes_per_block, blocks_submitted;
-static bool is_full_reconfig;
+static bool bridge_disable;
 
 /* RSU static variables */
 static uint32_t rsu_dcmf_ver[4] = {0};
@@ -100,11 +100,9 @@ static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
 			return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
-	if (query_type != 1) {
-		/* full reconfiguration */
-		if (is_full_reconfig) {
-			socfpga_bridges_enable();	/* Enable bridge */
-		}
+	if (bridge_disable) {
+		socfpga_bridges_enable();	/* Enable bridge */
+		bridge_disable = false;
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
@@ -188,7 +186,7 @@ static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 	return status;
 }
 
-static int intel_fpga_config_start(uint32_t type)
+static int intel_fpga_config_start(uint32_t flag)
 {
 	uint32_t argument = 0x1;
 	uint32_t response[3];
@@ -196,12 +194,13 @@ static int intel_fpga_config_start(uint32_t type)
 	unsigned int size = 0;
 	unsigned int resp_len = ARRAY_SIZE(response);
 
-	config_type config = type;
+	if (!CONFIG_TEST_FLAG(flag, PARTIAL_CONFIG)) {
+		bridge_disable = true;
+	}
 
-	if (config == FULL_CONFIG) {
-		is_full_reconfig = true;
-	} else if (config == BITSTREAM_AUTH) {
+	if (CONFIG_TEST_FLAG(flag, AUTHENTICATION)) {
 		size = 1;
+		bridge_disable = false;
 	}
 
 	mailbox_clear_response();
@@ -212,8 +211,10 @@ static int intel_fpga_config_start(uint32_t type)
 	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RECONFIG, &argument, size,
 			CMD_CASUAL, response, &resp_len);
 
-	if (status < 0)
+	if (status < 0) {
+		bridge_disable = false;
 		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
 
 	max_blocks = response[0];
 	bytes_per_block = response[1];
@@ -232,9 +233,8 @@ static int intel_fpga_config_start(uint32_t type)
 	read_block = 0;
 	current_buffer = 0;
 
-	/* full reconfiguration */
-	if (is_full_reconfig) {
-		/* Disable bridge */
+	/* Disable bridge on full reconfiguration */
+	if (bridge_disable) {
 		socfpga_bridges_disable();
 	}
 
