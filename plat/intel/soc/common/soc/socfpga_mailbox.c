@@ -509,12 +509,14 @@ int intel_mailbox_get_config_status(uint32_t cmd)
 		return MBOX_CFGSTAT_STATE_ERROR_HARDWARE;
 	}
 
-	if ((res & SOFTFUNC_STATUS_CONF_DONE) != 0U &&
-		(res & SOFTFUNC_STATUS_INIT_DONE) != 0U) {
-		return MBOX_RET_OK;
-	}
+	if ((res & SOFTFUNC_STATUS_CONF_DONE) == 0U)
+		return MBOX_CFGSTAT_STATE_CONFIG;
 
-	return MBOX_CFGSTAT_STATE_CONFIG;
+	if ((cmd == MBOX_RECONFIG_STATUS) &&
+		(res & SOFTFUNC_STATUS_INIT_DONE) == 0U)
+		return MBOX_CFGSTAT_STATE_CONFIG;
+
+	return MBOX_RET_OK;
 }
 
 int intel_mailbox_is_fpga_not_ready(void)
