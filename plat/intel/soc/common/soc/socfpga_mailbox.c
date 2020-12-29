@@ -481,7 +481,7 @@ int mailbox_init(void)
 	return MBOX_RET_OK;
 }
 
-int intel_mailbox_get_config_status(uint32_t cmd)
+int intel_mailbox_get_config_status(uint32_t cmd, bool init_done)
 {
 	int status;
 	uint32_t res, response[6];
@@ -512,8 +512,7 @@ int intel_mailbox_get_config_status(uint32_t cmd)
 	if ((res & SOFTFUNC_STATUS_CONF_DONE) == 0U)
 		return MBOX_CFGSTAT_STATE_CONFIG;
 
-	if ((cmd == MBOX_RECONFIG_STATUS) &&
-		(res & SOFTFUNC_STATUS_INIT_DONE) == 0U)
+	if (init_done && (res & SOFTFUNC_STATUS_INIT_DONE) == 0U)
 		return MBOX_CFGSTAT_STATE_CONFIG;
 
 	return MBOX_RET_OK;
@@ -521,10 +520,11 @@ int intel_mailbox_get_config_status(uint32_t cmd)
 
 int intel_mailbox_is_fpga_not_ready(void)
 {
-	int ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS);
+	int ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS, true);
 
 	if ((ret != MBOX_RET_OK) && (ret != MBOX_CFGSTAT_STATE_CONFIG)) {
-		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS);
+		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS,
+							false);
 	}
 
 	return ret;
