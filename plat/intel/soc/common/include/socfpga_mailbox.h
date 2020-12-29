@@ -165,7 +165,7 @@ int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 void mailbox_reset_cold(void);
 void mailbox_clear_response(void);
 
-int intel_mailbox_get_config_status(uint32_t cmd);
+int intel_mailbox_get_config_status(uint32_t cmd, bool init_done);
 int intel_mailbox_is_fpga_not_ready(void);
 
 int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, uint32_t resp_buf_len);

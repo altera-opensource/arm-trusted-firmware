@@ -19,6 +19,7 @@
 /* Total buffer the driver can hold */
 #define FPGA_CONFIG_BUFFER_SIZE 4
 
+static config_type request_type = NO_REQUEST;
 static int current_block, current_buffer;
 static int read_block, max_blocks;
 static uint32_t send_id, rcv_id;
@@ -84,26 +85,39 @@ static int intel_fpga_sdm_write_all(void)
 	return 0;
 }
 
-static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
+static uint32_t intel_mailbox_fpga_config_isdone(void)
 {
 	uint32_t ret;
 
-	if (query_type == 1)
-		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS);
-	else
-		ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS);
+	switch (request_type) {
+	case RECONFIGURATION:
+		ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS,
+							true);
+		break;
+	case BITSTREAM_AUTH:
+		ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS,
+							false);
+		break;
+	default:
+		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS,
+							false);
+		break;
+	}
 
 	if (ret) {
-		if (ret == MBOX_CFGSTAT_STATE_CONFIG)
+		if (ret == MBOX_CFGSTAT_STATE_CONFIG) {
 			return INTEL_SIP_SMC_STATUS_BUSY;
-		else
+		} else {
+			request_type = NO_REQUEST;
 			return INTEL_SIP_SMC_STATUS_ERROR;
+		}
 	}
 
 	if (bridge_disable) {
 		socfpga_bridges_enable();	/* Enable bridge */
 		bridge_disable = false;
 	}
+	request_type = NO_REQUEST;
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
@@ -160,6 +174,7 @@ static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 		if (status != MBOX_NO_RESPONSE &&
 			status != MBOX_TIMEOUT && resp_len != 0) {
 			mailbox_clear_response();
+			request_type = NO_REQUEST;
 			return INTEL_SIP_SMC_STATUS_ERROR;
 		}
 
@@ -194,6 +209,8 @@ static int intel_fpga_config_start(uint32_t flag)
 	unsigned int size = 0;
 	unsigned int resp_len = ARRAY_SIZE(response);
 
+	request_type = RECONFIGURATION;
+
 	if (!CONFIG_TEST_FLAG(flag, PARTIAL_CONFIG)) {
 		bridge_disable = true;
 	}
@@ -201,6 +218,7 @@ static int intel_fpga_config_start(uint32_t flag)
 	if (CONFIG_TEST_FLAG(flag, AUTHENTICATION)) {
 		size = 1;
 		bridge_disable = false;
+		request_type = BITSTREAM_AUTH;
 	}
 
 	mailbox_clear_response();
@@ -213,6 +231,7 @@ static int intel_fpga_config_start(uint32_t flag)
 
 	if (status < 0) {
 		bridge_disable = false;
+		request_type = NO_REQUEST;
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
@@ -523,7 +542,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		SMC_UUID_RET(handle, intl_svc_uid);
 
 	case INTEL_SIP_SMC_FPGA_CONFIG_ISDONE:
-		status = intel_mailbox_fpga_config_isdone(x1);
+		status = intel_mailbox_fpga_config_isdone();
 		SMC_RET4(handle, status, 0, 0, 0);
 
 	case INTEL_SIP_SMC_FPGA_CONFIG_GET_MEM:
