@@ -96,6 +96,11 @@ struct fpga_config_info {
 	int block_number;
 };
 
+typedef enum {
+	NO_REQUEST = 0,
+	RECONFIGURATION,
+	BITSTREAM_AUTH
+} config_type;
 
 /* Function Definitions */
 
