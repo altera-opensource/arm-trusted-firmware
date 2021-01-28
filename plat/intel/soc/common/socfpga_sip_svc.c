@@ -672,7 +672,15 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 
 	case INTEL_SIP_SMC_FCS_CRYPTION:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
-		status = intel_fcs_cryption(x1, x2, x3, x4, x5, &send_id);
+
+		if (x1 == FCS_MODE_DECRYPT) {
+			status = intel_fcs_decryption(x2, x3, x4, x5, &send_id);
+		} else if (x1 == FCS_MODE_ENCRYPT) {
+			status = intel_fcs_encryption(x2, x3, x4, x5, &send_id);
+		} else {
+			status = INTEL_SIP_SMC_STATUS_REJECTED;
+		}
+
 		SMC_RET3(handle, status, x4, x5);
 
 	case INTEL_SIP_SMC_FCS_RANDOM_NUMBER:
