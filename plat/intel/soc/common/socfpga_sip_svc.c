@@ -443,6 +443,13 @@ static uint32_t intel_rsu_copy_dcmf_status(uint64_t dcmf_stat)
 }
 
 /* Mailbox services */
+static uint32_t intel_smc_fw_version(uint32_t * fw_version)
+{
+	*fw_version = 0x0;
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args,
 				unsigned int len,
 				uint32_t urgent, uint32_t *response,
@@ -661,6 +668,10 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_smc_service_completed(x1, x2, &rcv_id,
 						&len_in_resp, &mbox_error);
 		SMC_RET4(handle, status, mbox_error, x1, len_in_resp);
+
+	case INTEL_SIP_SMC_FIRMWARE_VERSION:
+		status = intel_smc_fw_version(&retval);
+		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_MBOX_SEND_CMD:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
