@@ -22,8 +22,9 @@ https://www.intel.com/content/www/us/en/products/programmable/soc.html
 
 Version		|	Release Branch		|	TF-A Tag
 -------		|	--------------		|	--------
-Current (N)	|	socfpga_v2.3		|	v2.3
-N - 1		|	socfpga_v2.1		|	v2.1
+Current (N)	|	socfpga_v2.4.0		|	v2.4
+N - 1		|	socfpga_v2.3		|	v2.3
+N - 2		|	socfpga_v2.1		|	v2.1
 
 ----
 
@@ -35,8 +36,8 @@ Table below keeps track of Quartus version tested to be compatible with current 
 
 SOCFPGA Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro Edition
 ---------------------	|	---------------------------	|	-------------------------------
-Stratix 10		|	Quad-core ARM Cortex-A53	|	20.1, 20.3
-Agilex			|	Quad-core ARM Cortex-A53	|	20.1, 20.3
+Stratix 10		|	Quad-core ARM Cortex-A53	|	20.1, 20.2, 20.3, 20.4
+Agilex			|	Quad-core ARM Cortex-A53	|	20.1, 20.2, 20.3, 20.4
 Diamond Mesa		|	Quad-core ARM Cortex-A53	|	Early Access
 
 ----
@@ -77,52 +78,14 @@ FPGA Crypto Service (FCS)	|	No		|	Yes<sup>1</sup>	|	Yes<sup>1</sup>
 
 ## 4. Major Changes
 
-1. Enable Uboot + TF-A Flow
-	- New boot flow where TF-A's BL31 serves as secure monitor for U-boot
-	- Reduce engineering effort for multiple bootloader projects by sharing SMC code base
-	- Notably TF-A has better native support for PSCI implementations
-	- Enable SPL entrypoint into BL31 and secondary CPUs handling during boot
-	- SPL (EL3) -> TF-A BL31 (EL3) -> U-Boot Proper (EL2) -> Linux (EL1)
-	- BL31 will be bundled as part of a FIT image
-		1. U-Boot Proper (u-boot-nodtb.bin)
-		2. U-Boot Proper DTB (u-boot.dtb)
-		3. TF-A BL31 (bl31.bin)
-	- SPL will be responsible for loading this FIT image
+1. Based on TF-A version 2.4 official release
+	- Refer to docs/change-log.rst for details
 
-
-2. Add support for Intel Diamond Mesa
-	- Initial support for Intel new platform codenamed Diamond Mesa (DM)
-	- DM BL31 will share most of the common service provided in Agilex and Stratix 10
-
-3. Enable support for FPGA Crypto Service (FCS)
-	- FCS provides the capabilities of hardware Crypto IPs for customer usage
-	- Linux Tools and API are provided to help interfacing with this service through BL31
-	- TF-A BL31 will be the component handling HPS communication with SDM
-	- Key features supported as part of this service as follows:
-		1. Image Authentication
-		2. Hardware Random Number Generator
-		3. Encryption Service
-		4. Decryption Service
-		5. Provision Data Dump
-	- Supported platform: Simics software virtual platform for Intel SoCFPGA 64bits
-		(Agilex, Diamond Mesa)
-
-4. Vendor Authorized Boot (VAB)
-	- A secure boot feature currently supported in the new Uboot + TF-A bootflow
-	- Takes advantage of Image Authentication capabilities of FCS
-	- VAB ensures that each boot images are authenticated before execution
-	- How it works:
-		1. Security Certificate are generated for each boot images (.ccert)
-		2. Certificates are signed then appended to the original image (signed_*)
-		3. FIT images are generated from the signed boot images from earlier
-		4. Each of these certificates will be authenticated during boot
-
-5. Additional RSU features
-	- In this new release, RSU functionalities are expanded to cover more use cases
-	- List of these new SMC commands are as follows:
-		1. RSU DCMF Version
-		2. RSU DCMF Status
-		3. RSU Max Retry
+2. Update FCS internal logic to align with latest firmware
+	- Decryption command now sends Owner ID as part of the direct argument
+	- Provision data now includes additional Provision Status field
+	- Configuration Status now based on the latest configuration request type
+	- Configuration type flags now dealt with bit-wise
 
 ----
 
@@ -132,11 +95,11 @@ FPGA Crypto Service (FCS)	|	No		|	Yes<sup>1</sup>	|	Yes<sup>1</sup>
 	- Supported in altera-opensource/u-boot-socfpga branch:socfpga_v2020.04 onwards
 
 2. TF-A Diamond Mesa Support
-	- Current release only enable support for BL31
+	- Current release only have support for BL31
 	- Hence TF-A only usable as secure monitor for Diamond Mesa platform
 
 3. FPGA Crypto Service (FCS) Limitation
-	- Not supported in Intel Quartus Prime Pro 20.3 release
+	- Not supported in Intel Quartus Prime Pro 20.4 release
 	- Only supported in Simics software virtual platform
 
 4. Vendor Authorized Boot (VAB)
