@@ -59,6 +59,7 @@
 
 /* Mailbox Command */
 #define INTEL_SIP_SMC_MBOX_SEND_CMD			0xC200003C
+#define INTEL_SIP_SMC_GET_USERCODE			0xC200003D
 
 /* FPGA Crypto Services */
 #define INTEL_SIP_SMC_FCS_RANDOM_NUMBER			0xC200005A

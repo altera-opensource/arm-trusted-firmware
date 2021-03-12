@@ -475,6 +475,21 @@ static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args,
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+static int intel_smc_get_usercode(uint32_t *user_code)
+{
+	int status;
+	unsigned int resp_len = sizeof(user_code) / MBOX_WORD_BYTE;
+
+	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_GET_USERCODE, NULL,
+				0U, CMD_CASUAL, user_code, &resp_len);
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
 				uint32_t *job_id, unsigned int *resp_len,
 				uint32_t *mbox_error)
@@ -520,6 +535,7 @@ static uint32_t intel_hps_set_bridges(uint64_t enable)
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
+
 
 /*
  * This function is responsible for handling all SiP calls from the NS world
@@ -680,6 +696,10 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 					     (uint32_t *)x5, x6, &mbox_status,
 					     &len_in_resp);
 		SMC_RET3(handle, status, mbox_status, len_in_resp);
+
+	case INTEL_SIP_SMC_GET_USERCODE:
+		status = intel_smc_get_usercode(&retval);
+		SMC_RET2(handle, status, retval);
 
 	case INTEL_SIP_SMC_FCS_CRYPTION:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
