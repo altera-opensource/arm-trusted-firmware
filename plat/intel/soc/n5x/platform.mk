@@ -5,7 +5,7 @@
 #
 
 PLAT_INCLUDES		:=	\
-			-Iplat/intel/soc/diamond_mesa/include/		\
+			-Iplat/intel/soc/n5x/include/		\
 			-Iplat/intel/soc/common/drivers/		\
 			-Iplat/intel/soc/common/include/
 
@@ -34,7 +34,7 @@ BL31_SOURCES	+=	\
 		lib/cpus/aarch64/aem_generic.S				\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/common/plat_psci_common.c				\
-		plat/intel/soc/diamond_mesa/bl31_plat_setup.c 		\
+		plat/intel/soc/n5x/bl31_plat_setup.c 		\
 		plat/intel/soc/common/socfpga_fcs.c			\
 		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_sip_svc.c			\

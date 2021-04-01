@@ -10,7 +10,7 @@
 #include <platform_def.h>
 
 /* Platform Setting */
-#define PLATFORM_MODEL				PLAT_SOCFPGA_DIAMOND_MESA
+#define PLATFORM_MODEL				PLAT_SOCFPGA_N5X
 #define BOOT_SOURCE				BOOT_SOURCE_SDMMC
 
 /* FPGA config helpers */
