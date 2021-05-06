@@ -551,8 +551,9 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			 u_register_t flags)
 {
 	uint32_t retval = 0, completed_addr[3];
+	uint32_t retval2 = 0;
 	uint32_t mbox_error = 0;
-	uint64_t ret_size, rsu_respbuf[9];
+	uint64_t retval64, rsu_respbuf[9];
 	int status = INTEL_SIP_SMC_STATUS_OK;
 	int mbox_status;
 	unsigned int len_in_resp;
@@ -715,22 +716,40 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		SMC_RET3(handle, status, x4, x5);
 
 	case INTEL_SIP_SMC_FCS_RANDOM_NUMBER:
-		status = intel_fcs_random_number_gen(x1, &ret_size,
+		status = intel_fcs_random_number_gen(x1, &retval64,
 							&mbox_error);
-		SMC_RET4(handle, status, mbox_error, x1, ret_size);
+		SMC_RET4(handle, status, mbox_error, x1, retval64);
 
 	case INTEL_SIP_SMC_FCS_SEND_CERTIFICATE:
 		status = intel_fcs_send_cert(x1, x2, &send_id);
 		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_FCS_GET_PROVISION_DATA:
-		status = intel_fcs_get_provision_data(x1, &ret_size,
+		status = intel_fcs_get_provision_data(x1, &retval64,
 							&mbox_error);
-		SMC_RET4(handle, status, mbox_error, x1, ret_size);
+		SMC_RET4(handle, status, mbox_error, x1, retval64);
 
 	case INTEL_SIP_SMC_HPS_SET_BRIDGES:
 		status = intel_hps_set_bridges(x1);
 		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_FCS_PSGSIGMA_TEARDOWN:
+		status = intel_fcs_sigma_teardown(x1, &mbox_error);
+		SMC_RET2(handle, status, mbox_error);
+
+	case INTEL_SIP_SMC_FCS_CHIP_ID:
+		status = intel_fcs_chip_id(&retval, &retval2, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, retval, retval2);
+
+	case INTEL_SIP_SMC_FCS_ATTESTATION_SUBKEY:
+		status = intel_fcs_attestation_subkey(x1, x2, x3,
+					(uint32_t *) &x4, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x3, x4);
+
+	case INTEL_SIP_SMC_FCS_ATTESTATION_MEASUREMENTS:
+		status = intel_fcs_get_measurement(x1, x2, x3,
+					(uint32_t *) &x4, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x3, x4);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
