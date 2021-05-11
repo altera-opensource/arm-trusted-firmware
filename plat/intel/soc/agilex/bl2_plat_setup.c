@@ -27,6 +27,7 @@
 #include "socfpga_private.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_system_manager.h"
+#include "socfpga_f2sdram_manager.h"
 #include "wdt/watchdog.h"
 
 static struct mmc_device_info mmc_info;
@@ -81,7 +82,8 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	agx_mmc_init();
 
 	if (!intel_mailbox_is_fpga_not_ready())
-		socfpga_bridges_enable();
+		socfpga_bridges_enable(SOC2FPGA_MASK | LWHPS2FPGA_MASK |
+			FPGA2SOC_MASK);
 }
 
 

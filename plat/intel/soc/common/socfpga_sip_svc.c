@@ -114,7 +114,7 @@ static uint32_t intel_mailbox_fpga_config_isdone(void)
 	}
 
 	if (bridge_disable) {
-		socfpga_bridges_enable();	/* Enable bridge */
+		socfpga_bridges_enable(~0);	/* Enable bridge */
 		bridge_disable = false;
 	}
 	request_type = NO_REQUEST;
@@ -254,7 +254,7 @@ static int intel_fpga_config_start(uint32_t flag)
 
 	/* Disable bridge on full reconfiguration */
 	if (bridge_disable) {
-		socfpga_bridges_disable();
+		socfpga_bridges_disable(~0);
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
@@ -530,12 +530,22 @@ uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
 }
 
 /* Miscellaneous HPS services */
-static uint32_t intel_hps_set_bridges(uint64_t enable)
+static uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
 {
-	if (enable)
-		socfpga_bridges_enable();
+	if (enable & SOCFPGA_BRIDGE_ENABLE) {
+		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0)
+			socfpga_bridges_enable((uint32_t)mask);
+		else
+			socfpga_bridges_enable(~0);
+	}
 	else
-		socfpga_bridges_disable();
+	{
+		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
+			socfpga_bridges_disable((uint32_t)mask);
+		}
+		else
+			socfpga_bridges_disable(~0);
+	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
@@ -739,7 +749,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		SMC_RET2(handle, status, mbox_error);
 
 	case INTEL_SIP_SMC_HPS_SET_BRIDGES:
-		status = intel_hps_set_bridges(x1);
+		status = intel_hps_set_bridges(x1, x2);
 		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_FCS_PSGSIGMA_TEARDOWN:
