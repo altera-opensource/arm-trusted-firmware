@@ -9,6 +9,15 @@
 
 #include "socfpga_plat_def.h"
 
+#define SOCFPGA_BRIDGE_ENABLE	BIT(0)
+#define SOCFPGA_BRIDGE_HAS_MASK	BIT(1)
+
+#define SOC2FPGA_MASK		(1<<0)
+#define LWHPS2FPGA_MASK		(1<<1)
+#define FPGA2SOC_MASK		(1<<2)
+#define F2SDRAM0_MASK		(1<<3)
+#define F2SDRAM1_MASK		(1<<4)
+#define F2SDRAM2_MASK		(1<<5)
 
 /* Register Mapping */
 
@@ -110,7 +119,7 @@
 void deassert_peripheral_reset(void);
 void config_hps_hs_before_warm_reset(void);
 
-int socfpga_bridges_enable(void);
-int socfpga_bridges_disable(void);
+int socfpga_bridges_enable(uint32_t mask);
+int socfpga_bridges_disable(uint32_t mask);
 
 #endif /* SOCFPGA_RESETMANAGER_H */
