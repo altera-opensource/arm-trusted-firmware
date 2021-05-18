@@ -446,6 +446,29 @@ static uint32_t intel_rsu_copy_dcmf_status(uint64_t dcmf_stat)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+/* Intel HWMON services */
+static uint32_t intel_hwmon_readtemp(uint32_t chan, uint64_t *respbuf,
+					unsigned int respbuf_sz)
+{
+	if (chan < TEMP_CHANNEL_MIN || chan > TEMP_CHANNEL_MAX)
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	if (mailbox_hwmon_readtemp(chan, (uint32_t *)respbuf, respbuf_sz) < 0)
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+static uint32_t intel_hwmon_readvolt(uint32_t chan, uint64_t *respbuf,
+					unsigned int respbuf_sz)
+{
+	if (mailbox_hwmon_readvolt(chan, (uint32_t *)respbuf, respbuf_sz) < 0)
+		return INTEL_SIP_SMC_RSU_ERROR;
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+
 /* Mailbox services */
 static uint32_t intel_smc_fw_version(uint32_t * fw_version)
 {
@@ -769,6 +792,24 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_fcs_get_measurement(x1, x2, x3,
 					(uint32_t *) &x4, &mbox_error);
 		SMC_RET4(handle, status, mbox_error, x3, x4);
+
+	case INTEL_SIP_SMC_HWMON_READTEMP:
+		status = intel_hwmon_readtemp(x1, rsu_respbuf,
+					ARRAY_SIZE(rsu_respbuf));
+		if (status)
+			SMC_RET1(handle, status);
+
+		SMC_RET4(handle, rsu_respbuf[0], rsu_respbuf[1],
+					rsu_respbuf[2], rsu_respbuf[3]);
+
+	case INTEL_SIP_SMC_HWMON_READVOLT:
+		status = intel_hwmon_readvolt(x1, rsu_respbuf,
+					ARRAY_SIZE(rsu_respbuf));
+		if (status)
+			SMC_RET1(handle, status);
+
+		SMC_RET4(handle, rsu_respbuf[0], rsu_respbuf[1],
+					rsu_respbuf[2], rsu_respbuf[3]);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,

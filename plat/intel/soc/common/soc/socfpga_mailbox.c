@@ -529,3 +529,21 @@ int intel_mailbox_is_fpga_not_ready(void)
 
 	return ret;
 }
+
+
+int mailbox_hwmon_readtemp(uint32_t chan, uint32_t *resp_buf,
+				unsigned int resp_buf_len)
+{
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_HWMON_READTEMP, &chan, 1U,
+				CMD_CASUAL, resp_buf,
+				&resp_buf_len);
+
+}
+
+int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf,
+				unsigned int resp_buf_len)
+{
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_HWMON_READVOLT, &chan, 1U,
+				CMD_CASUAL, resp_buf,
+				&resp_buf_len);
+}
