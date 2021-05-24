@@ -23,6 +23,7 @@
 #include "socfpga_reset_manager.h"
 #include "socfpga_system_manager.h"
 #include "socfpga_f2sdram_manager.h"
+#include "s10_mmc.h"
 #include "s10_clock_manager.h"
 #include "s10_memory_controller.h"
 #include "s10_pinmux.h"
@@ -76,6 +77,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	socfpga_delay_timer_init();
 	init_hard_memory_controller();
 	mailbox_init();
+	s10_mmc_init();
 
 	if (!intel_mailbox_is_fpga_not_ready())
 		socfpga_bridges_enable(SOC2FPGA_MASK | LWHPS2FPGA_MASK |
