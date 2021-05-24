@@ -41,6 +41,7 @@ BL2_SOURCES     +=	\
 		drivers/synopsys/emmc/dw_mmc.c				\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/intel/soc/stratix10/bl2_plat_setup.c		\
+		plat/intel/soc/stratix10/soc/s10_mmc.c			\
 		plat/intel/soc/stratix10/soc/s10_clock_manager.c	\
 		plat/intel/soc/stratix10/soc/s10_memory_controller.c	\
 		plat/intel/soc/stratix10/soc/s10_pinmux.c		\
