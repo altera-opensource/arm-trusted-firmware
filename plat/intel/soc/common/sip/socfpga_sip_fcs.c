@@ -70,6 +70,8 @@ uint32_t intel_fcs_send_cert(uint64_t addr, uint64_t size,
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
+	flush_dcache_range(addr, size);
+
 	status = mailbox_send_cmd_async(send_id, MBOX_CMD_VAB_SRC_CERT,
 				(uint32_t *)addr, size / MBOX_WORD_BYTE,
 				CMD_DIRECT);
