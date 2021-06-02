@@ -601,7 +601,6 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	unsigned int len_in_resp;
 	u_register_t x5, x6;
 
-
 	switch (smc_fid) {
 	case SIP_SVC_UID:
 		/* Return UID to the caller */
@@ -805,6 +804,15 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_fcs_get_measurement(x1, x2, x3,
 					(uint32_t *) &x4, &mbox_error);
 		SMC_RET4(handle, status, mbox_error, x3, x4);
+
+	case INTEL_SIP_SMC_FCS_GET_ATTESTATION_CERT:
+		status = intel_fcs_get_attestation_cert(x1, x2,
+					(uint32_t *) &x3, &mbox_error);
+		SMC_RET4(handle, status, mbox_error, x2, x3);
+
+	case INTEL_SIP_SMC_FCS_CREATE_CERT_ON_RELOAD:
+		status = intel_fcs_create_cert_on_reload(x1, &mbox_error);
+		SMC_RET2(handle, status, mbox_error);
 
 	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
 		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,
