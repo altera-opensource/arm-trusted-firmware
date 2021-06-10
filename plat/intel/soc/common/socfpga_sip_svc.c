@@ -555,24 +555,29 @@ uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
 /* Miscellaneous HPS services */
 static uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
 {
+	int status = 0;
+
 	if (enable & SOCFPGA_BRIDGE_ENABLE) {
 		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0)
-			socfpga_bridges_enable((uint32_t)mask);
+			status = socfpga_bridges_enable((uint32_t)mask);
 		else
-			socfpga_bridges_enable(~0);
+			status = socfpga_bridges_enable(~0);
 	}
 	else
 	{
 		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0) {
-			socfpga_bridges_disable((uint32_t)mask);
+			status = socfpga_bridges_disable((uint32_t)mask);
 		}
 		else
-			socfpga_bridges_disable(~0);
+			status = socfpga_bridges_disable(~0);
+	}
+
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
-
 
 /*
  * This function is responsible for handling all SiP calls from the NS world
