@@ -91,249 +91,247 @@ void config_hps_hs_before_warm_reset(void)
 
 static int poll_idle_status(uint32_t addr, uint32_t mask, uint32_t match)
 {
-	int time_out = 1000;
+	int time_out = 300;
 
 	while (time_out--) {
 		if ((mmio_read_32(addr) & mask) == match) {
 			return 0;
 		}
+		udelay(1000);
 	}
 	return -ETIMEDOUT;
 }
 
 static void socfpga_s2f_bridge_mask(uint32_t mask,
 				uint32_t *brg_mask,
-				uint32_t *idlereq_clr_mask,
-				uint32_t *idleack_mask)
+				uint32_t *noc_mask)
 {
 	*brg_mask = 0;
-	*idlereq_clr_mask = 0;
-	*idleack_mask = 0;
+	*noc_mask = 0;
 
 	if (mask & SOC2FPGA_MASK)
 	{
-		*idlereq_clr_mask |= IDLE_DATA_SOC2FPGA;
-		*idleack_mask |= ~IDLE_DATA_SOC2FPGA;
 		*brg_mask |= RSTMGR_FIELD(BRG, SOC2FPGA);
+		*noc_mask |= IDLE_DATA_SOC2FPGA;
 	}
 
 	if (mask & LWHPS2FPGA_MASK)
 	{
-		*idlereq_clr_mask |= IDLE_DATA_LWSOC2FPGA;
-		*idleack_mask |= IDLE_DATA_LWSOC2FPGA;
 		*brg_mask |= RSTMGR_FIELD(BRG, LWHPS2FPGA);
+		*noc_mask |= IDLE_DATA_LWSOC2FPGA;
 	}
 }
 
 static void socfpga_f2s_bridge_mask(uint32_t mask,
-				uint32_t *brgmodrst,
+				uint32_t *brg_mask,
 				uint32_t *f2s_idlereq,
 				uint32_t *f2s_force_drain,
 				uint32_t *f2s_en,
-				uint32_t *f2s_idleack)
+				uint32_t *f2s_idleack,
+				uint32_t *f2s_respempty)
 {
-	*brgmodrst = 0;
+	*brg_mask = 0;
 	*f2s_idlereq = 0;
 	*f2s_force_drain = 0;
 	*f2s_en = 0;
 	*f2s_idleack = 0;
+	*f2s_respempty = 0;
 
 #if PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
+	if (mask & FPGA2SOC_MASK)
+	{
+		*brg_mask |= RSTMGR_FIELD(BRG, FPGA2SOC);
+	}
 	if (mask & F2SDRAM0_MASK)
 	{
+		*brg_mask |= RSTMGR_FIELD(BRG, F2SSDRAM0);
 		*f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM0_IDLEREQ;
 		*f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM0_FORCE_DRAIN;
 		*f2s_en |= FLAGOUTSETCLR_F2SDRAM0_ENABLE;
 		*f2s_idleack |= FLAGINTSTATUS_F2SDRAM0_IDLEACK;
-
-		*brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM0);
+		*f2s_respempty |= FLAGINTSTATUS_F2SDRAM0_RESPEMPTY;
 	}
 	if (mask & F2SDRAM1_MASK)
 	{
+		*brg_mask |= RSTMGR_FIELD(BRG, F2SSDRAM1);
 		*f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM1_IDLEREQ;
 		*f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM1_FORCE_DRAIN;
 		*f2s_en |= FLAGOUTSETCLR_F2SDRAM1_ENABLE;
 		*f2s_idleack |= FLAGINTSTATUS_F2SDRAM1_IDLEACK;
-
-		*brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM1);
+		*f2s_respempty |= FLAGINTSTATUS_F2SDRAM1_RESPEMPTY;
 	}
 	if (mask & F2SDRAM2_MASK)
 	{
+		*brg_mask |= RSTMGR_FIELD(BRG, F2SSDRAM2);
 		*f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM2_IDLEREQ;
 		*f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM2_FORCE_DRAIN;
 		*f2s_en |= FLAGOUTSETCLR_F2SDRAM2_ENABLE;
 		*f2s_idleack |= FLAGINTSTATUS_F2SDRAM2_IDLEACK;
-
-		*brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM2);
+		*f2s_respempty |= FLAGINTSTATUS_F2SDRAM2_RESPEMPTY;
 	}
 #else
 	if (mask & FPGA2SOC_MASK)
 	{
+		*brg_mask |= RSTMGR_FIELD(BRG, FPGA2SOC);
 		*f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM0_IDLEREQ;
 		*f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM0_FORCE_DRAIN;
 		*f2s_en |= FLAGOUTSETCLR_F2SDRAM0_ENABLE;
 		*f2s_idleack |= FLAGINTSTATUS_F2SDRAM0_IDLEACK;
-
-		*brgmodrst |= RSTMGR_FIELD(BRG, FPGA2SOC);
+		*f2s_respempty |= FLAGINTSTATUS_F2SDRAM0_RESPEMPTY;
 	}
 #endif
 }
 
 int socfpga_bridges_enable(uint32_t mask)
 {
+	int ret = 0;
+	uint32_t brg_mask = 0;
+	uint32_t noc_mask = 0;
 	uint32_t f2s_idlereq = 0;
 	uint32_t f2s_force_drain = 0;
 	uint32_t f2s_en = 0;
 	uint32_t f2s_idleack = 0;
-	uint32_t brgmodrst = 0;
-	uint32_t idlereq_clr_mask = 0;
-	uint32_t idleack_mask = 0;
+	uint32_t f2s_respempty = 0;
 
-	socfpga_s2f_bridge_mask(mask,
-				&brgmodrst,
-				&idlereq_clr_mask,
-				&idleack_mask);
-
-	if (brgmodrst) {
+	/* Enable s2f bridge */
+	socfpga_s2f_bridge_mask(mask, &brg_mask, &noc_mask);
+	if (brg_mask) {
 		/* Clear idle request */
 		mmio_setbits_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_CLR),
-			idlereq_clr_mask);
+				noc_mask);
 
 		/* De-assert all bridges */
-		mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), brgmodrst);
+		mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), brg_mask);
 
 		/* Wait until idle ack becomes 0 */
-		if (poll_idle_status(SOCFPGA_SYSMGR(NOC_IDLEACK),
-			idleack_mask, 0))
-		{
-			ERROR ("Bridge enable: Timeout waiting for idle ack\n");
+		ret = poll_idle_status(SOCFPGA_SYSMGR(NOC_IDLEACK),
+				       noc_mask, 0);
+		if (ret < 0) {
+			ERROR ("S2F bridge enable: "
+			       "Timeout waiting for idle ack\n");
 		}
 	}
 
-	socfpga_f2s_bridge_mask(mask,
-				&brgmodrst,
-				&f2s_idlereq,
-				&f2s_force_drain,
-				&f2s_en,
-				&f2s_idleack);
+	/* Enable f2s bridge */
+	socfpga_f2s_bridge_mask(mask, &brg_mask, &f2s_idlereq,
+				      &f2s_force_drain, &f2s_en,
+				      &f2s_idleack, &f2s_respempty);
+	if (brg_mask) {
+		mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), brg_mask);
 
-	if (brgmodrst == 0)
-	{
-		return 0;
-	}
-	/* F2S bridge enable */
-	mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), brgmodrst);
+		mmio_clrbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
+			f2s_idlereq);
 
-	mmio_clrbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
-		f2s_idlereq);
+		ret = poll_idle_status(SOCFPGA_F2SDRAMMGR(
+			SIDEBANDMGR_FLAGINSTATUS0), f2s_idleack, 0);
+		if (ret < 0) {
+			ERROR("F2S bridge enable: "
+			      "Timeout waiting for idle ack");
+		}
 
-	if (poll_idle_status(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGINSTATUS0),
-		f2s_idleack, 0))
-	{
-		ERROR("F2S bridge enable: Timed out waiting for noc idle ack");
-	}
-
-	mmio_clrbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
+		mmio_clrbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
 			f2s_force_drain);
 
-	mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
+		mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
 			f2s_en);
 
-	return 0;
+		udelay(1);
+	}
+
+	return ret;
 }
 
 int socfpga_bridges_disable(uint32_t mask)
 {
-	int timeout=100;
+	int ret = 0;
+	int timeout = 300;
+	uint32_t brg_mask = 0;
+	uint32_t noc_mask = 0;
 	uint32_t f2s_idlereq = 0;
 	uint32_t f2s_force_drain = 0;
 	uint32_t f2s_en = 0;
 	uint32_t f2s_idleack = 0;
-	uint32_t brgmodrst = 0;
-	uint32_t idlereq_clr_mask = 0;
-	uint32_t idleack_mask = 0;
+	uint32_t f2s_respempty = 0;
 
-	socfpga_s2f_bridge_mask(mask,
-				&brgmodrst,
-				&idlereq_clr_mask,
-				&idleack_mask);
-
-	if (brgmodrst) {
-		/* Clear idle request */
+	/* Disable s2f bridge */
+	socfpga_s2f_bridge_mask(mask, &brg_mask, &noc_mask);
+	if (brg_mask) {
 		mmio_setbits_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_SET),
-			idlereq_clr_mask);
+				noc_mask);
 
-		/* Enable NOC timeout */
-		mmio_setbits_32(SOCFPGA_SYSMGR(NOC_TIMEOUT), 1);
+		mmio_write_32(SOCFPGA_SYSMGR(NOC_TIMEOUT), 1);
 
-		/* De-assert all bridges */
-		mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), brgmodrst);
-
-		/* Wait until idle ack becomes 0 */
-		if (poll_idle_status(SOCFPGA_SYSMGR(NOC_IDLEACK),
-				idleack_mask, idleack_mask))
-		{
-			ERROR ("Bridge enable: Timeout waiting for idle ack\n");
+		ret = poll_idle_status(SOCFPGA_SYSMGR(NOC_IDLEACK),
+				       noc_mask, noc_mask);
+		if (ret < 0) {
+			ERROR ("S2F Bridge disable: "
+			       "Timeout waiting for idle ack\n");
 		}
+
+		ret = poll_idle_status(SOCFPGA_SYSMGR(NOC_IDLESTATUS),
+				       noc_mask, noc_mask);
+		if (ret < 0) {
+			ERROR ("S2F Bridge disable: "
+			       "Timeout waiting for idle status\n");
+		}
+
+		mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST), brg_mask);
+
+		mmio_write_32(SOCFPGA_SYSMGR(NOC_TIMEOUT), 0);
 	}
 
-	socfpga_f2s_bridge_mask(mask,
-				&brgmodrst,
-				&f2s_idlereq,
-				&f2s_force_drain,
-				&f2s_en,
-				&f2s_idleack);
+	/* Disable f2s bridge */
+	socfpga_f2s_bridge_mask(mask, &brg_mask, &f2s_idlereq,
+				      &f2s_force_drain, &f2s_en,
+				      &f2s_idleack, &f2s_respempty);
+	if (brg_mask) {
+		mmio_setbits_32(SOCFPGA_RSTMGR(HDSKEN),
+				RSTMGR_HDSKEN_FPGAHSEN);
 
-	if (brgmodrst == 0)
-	{
-		return 0;
-	}
+		mmio_setbits_32(SOCFPGA_RSTMGR(HDSKREQ),
+				RSTMGR_HDSKREQ_FPGAHSREQ);
 
-	/* Assert all bridges */
-	mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
-		brgmodrst);
+		poll_idle_status(SOCFPGA_RSTMGR(HDSKACK),
+				RSTMGR_HDSKACK_FPGAHSACK_MASK,
+				RSTMGR_HDSKACK_FPGAHSACK_MASK);
 
-	/* Disable NOC timeout */
-	mmio_clrbits_32(SOCFPGA_SYSMGR(NOC_TIMEOUT), 1);
+		mmio_clrbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
+				f2s_en);
+		udelay(1);
 
-	/* Preparing to disable F2S bridge */
-	mmio_setbits_32(SOCFPGA_RSTMGR(HDSKEN), RSTMGR_HDSKEN_FPGAHSEN);
+		mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
+				f2s_force_drain);
+		udelay(1);
 
-	mmio_setbits_32(SOCFPGA_RSTMGR(HDSKREQ), RSTMGR_HDSKREQ_FPGAHSREQ);
-
-	poll_idle_status(SOCFPGA_RSTMGR(HDSKACK),
-			RSTMGR_HDSKACK_FPGAHSACK_MASK,
-			RSTMGR_HDSKACK_FPGAHSACK_MASK);
-
-
-	mmio_clrbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
-			f2s_en);
-
-	mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
-		f2s_force_drain);
-
-	do {
-		uint32_t idle_status;
-		idle_status = mmio_read_32(SOCFPGA_F2SDRAMMGR(
-			SIDEBANDMGR_FLAGINSTATUS0));
-		if ((idle_status & f2s_idleack) == f2s_idleack)
-		{
+		do {
+			/* Read response queue status to ensure it is empty */
+			uint32_t idle_status;
 			idle_status = mmio_read_32(SOCFPGA_F2SDRAMMGR(
 				SIDEBANDMGR_FLAGINSTATUS0));
-			if ((idle_status& f2s_idleack) == f2s_idleack)
-				break;
-		}
-		udelay (1000);
-	} while (timeout--> 0);
+			if (idle_status & f2s_respempty)
+			{
+				idle_status = mmio_read_32(SOCFPGA_F2SDRAMMGR(
+					SIDEBANDMGR_FLAGINSTATUS0));
+				if (idle_status & f2s_respempty)
+					break;
+			}
+			udelay (1000);
+		} while (timeout-- > 0);
 
-	mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
-		brgmodrst);
+#if PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
+		/* Software must never write a 0x1 to FPGA2SOC_MASK bit */
+		mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
+				brg_mask & ~RSTMGR_FIELD(BRG, FPGA2SOC));
+#else
+		mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
+				brg_mask);
+#endif
+		mmio_clrbits_32(SOCFPGA_RSTMGR(HDSKREQ),
+				RSTMGR_HDSKEQ_FPGAHSREQ);
 
-	mmio_clrbits_32(SOCFPGA_RSTMGR(HDSKREQ),
-		RSTMGR_HDSKEQ_FPGAHSREQ);
+		mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTCLR0),
+				f2s_idlereq);
+	}
 
-	mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTCLR0),
-		f2s_idlereq);
-
-	return 0;
+	return ret;
 }
