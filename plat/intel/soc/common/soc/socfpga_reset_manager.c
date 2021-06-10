@@ -101,6 +101,84 @@ static int poll_idle_status(uint32_t addr, uint32_t mask, uint32_t match)
 	return -ETIMEDOUT;
 }
 
+static void socfpga_s2f_bridge_mask(uint32_t mask,
+				uint32_t *brg_mask,
+				uint32_t *idlereq_clr_mask,
+				uint32_t *idleack_mask)
+{
+	*brg_mask = 0;
+	*idlereq_clr_mask = 0;
+	*idleack_mask = 0;
+
+	if (mask & SOC2FPGA_MASK)
+	{
+		*idlereq_clr_mask |= IDLE_DATA_SOC2FPGA;
+		*idleack_mask |= ~IDLE_DATA_SOC2FPGA;
+		*brg_mask |= RSTMGR_FIELD(BRG, SOC2FPGA);
+	}
+
+	if (mask & LWHPS2FPGA_MASK)
+	{
+		*idlereq_clr_mask |= IDLE_DATA_LWSOC2FPGA;
+		*idleack_mask |= IDLE_DATA_LWSOC2FPGA;
+		*brg_mask |= RSTMGR_FIELD(BRG, LWHPS2FPGA);
+	}
+}
+
+static void socfpga_f2s_bridge_mask(uint32_t mask,
+				uint32_t *brgmodrst,
+				uint32_t *f2s_idlereq,
+				uint32_t *f2s_force_drain,
+				uint32_t *f2s_en,
+				uint32_t *f2s_idleack)
+{
+	*brgmodrst = 0;
+	*f2s_idlereq = 0;
+	*f2s_force_drain = 0;
+	*f2s_en = 0;
+	*f2s_idleack = 0;
+
+#if PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
+	if (mask & F2SDRAM0_MASK)
+	{
+		*f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM0_IDLEREQ;
+		*f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM0_FORCE_DRAIN;
+		*f2s_en |= FLAGOUTSETCLR_F2SDRAM0_ENABLE;
+		*f2s_idleack |= FLAGINTSTATUS_F2SDRAM0_IDLEACK;
+
+		*brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM0);
+	}
+	if (mask & F2SDRAM1_MASK)
+	{
+		*f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM1_IDLEREQ;
+		*f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM1_FORCE_DRAIN;
+		*f2s_en |= FLAGOUTSETCLR_F2SDRAM1_ENABLE;
+		*f2s_idleack |= FLAGINTSTATUS_F2SDRAM1_IDLEACK;
+
+		*brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM1);
+	}
+	if (mask & F2SDRAM2_MASK)
+	{
+		*f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM2_IDLEREQ;
+		*f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM2_FORCE_DRAIN;
+		*f2s_en |= FLAGOUTSETCLR_F2SDRAM2_ENABLE;
+		*f2s_idleack |= FLAGINTSTATUS_F2SDRAM2_IDLEACK;
+
+		*brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM2);
+	}
+#else
+	if (mask & FPGA2SOC_MASK)
+	{
+		*f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM0_IDLEREQ;
+		*f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM0_FORCE_DRAIN;
+		*f2s_en |= FLAGOUTSETCLR_F2SDRAM0_ENABLE;
+		*f2s_idleack |= FLAGINTSTATUS_F2SDRAM0_IDLEACK;
+
+		*brgmodrst |= RSTMGR_FIELD(BRG, FPGA2SOC);
+	}
+#endif
+}
+
 int socfpga_bridges_enable(uint32_t mask)
 {
 	uint32_t f2s_idlereq = 0;
@@ -108,25 +186,15 @@ int socfpga_bridges_enable(uint32_t mask)
 	uint32_t f2s_en = 0;
 	uint32_t f2s_idleack = 0;
 	uint32_t brgmodrst = 0;
+	uint32_t idlereq_clr_mask = 0;
+	uint32_t idleack_mask = 0;
 
-	if ((mask & SOC2FPGA_MASK) || (mask & LWHPS2FPGA_MASK)) {
-		uint32_t idlereq_clr_mask = 0;
-		uint32_t idleack_mask = 0;
+	socfpga_s2f_bridge_mask(mask,
+				&brgmodrst,
+				&idlereq_clr_mask,
+				&idleack_mask);
 
-		if (mask & SOC2FPGA_MASK)
-		{
-			idlereq_clr_mask |= IDLE_DATA_SOC2FPGA;
-			idleack_mask |= ~IDLE_DATA_SOC2FPGA;
-			brgmodrst |= RSTMGR_FIELD(BRG, SOC2FPGA);
-		}
-
-		if (mask & LWHPS2FPGA_MASK)
-		{
-			idlereq_clr_mask |= IDLE_DATA_LWSOC2FPGA;
-			idleack_mask |= IDLE_DATA_LWSOC2FPGA;
-			brgmodrst |= RSTMGR_FIELD(BRG, LWHPS2FPGA);
-		}
-
+	if (brgmodrst) {
 		/* Clear idle request */
 		mmio_setbits_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_CLR),
 			idlereq_clr_mask);
@@ -142,46 +210,12 @@ int socfpga_bridges_enable(uint32_t mask)
 		}
 	}
 
-	brgmodrst = 0;
-#if PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
-	if (mask & F2SDRAM0_MASK)
-	{
-		f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM0_IDLEREQ;
-		f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM0_FORCE_DRAIN;
-		f2s_en |= FLAGOUTSETCLR_F2SDRAM0_ENABLE;
-		f2s_idleack |= FLAGINTSTATUS_F2SDRAM0_IDLEACK;
-
-		brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM0);
-	}
-	if (mask & F2SDRAM1_MASK)
-	{
-		f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM1_IDLEREQ;
-		f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM1_FORCE_DRAIN;
-		f2s_en |= FLAGOUTSETCLR_F2SDRAM1_ENABLE;
-		f2s_idleack |= FLAGINTSTATUS_F2SDRAM1_IDLEACK;
-
-		brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM1);
-	}
-	if (mask & F2SDRAM2_MASK)
-	{
-		f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM2_IDLEREQ;
-		f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM2_FORCE_DRAIN;
-		f2s_en |= FLAGOUTSETCLR_F2SDRAM2_ENABLE;
-		f2s_idleack |= FLAGINTSTATUS_F2SDRAM2_IDLEACK;
-
-		brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM2);
-	}
-#else
-	if (mask & FPGA2SOC_MASK)
-	{
-		f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM0_IDLEREQ;
-		f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM0_FORCE_DRAIN;
-		f2s_en |= FLAGOUTSETCLR_F2SDRAM0_ENABLE;
-		f2s_idleack |= FLAGINTSTATUS_F2SDRAM0_IDLEACK;
-
-		brgmodrst |= RSTMGR_FIELD(BRG, FPGA2SOC);
-	}
-#endif
+	socfpga_f2s_bridge_mask(mask,
+				&brgmodrst,
+				&f2s_idlereq,
+				&f2s_force_drain,
+				&f2s_en,
+				&f2s_idleack);
 
 	if (brgmodrst == 0)
 	{
@@ -216,26 +250,15 @@ int socfpga_bridges_disable(uint32_t mask)
 	uint32_t f2s_en = 0;
 	uint32_t f2s_idleack = 0;
 	uint32_t brgmodrst = 0;
+	uint32_t idlereq_clr_mask = 0;
+	uint32_t idleack_mask = 0;
 
+	socfpga_s2f_bridge_mask(mask,
+				&brgmodrst,
+				&idlereq_clr_mask,
+				&idleack_mask);
 
-	if ((mask & SOC2FPGA_MASK) || (mask & LWHPS2FPGA_MASK)) {
-		uint32_t idlereq_clr_mask = 0;
-		uint32_t idleack_mask = 0;
-
-		if (mask & SOC2FPGA_MASK)
-		{
-			idlereq_clr_mask |= IDLE_DATA_SOC2FPGA;
-			idleack_mask |= IDLE_DATA_SOC2FPGA;
-			brgmodrst |= RSTMGR_FIELD(BRG, SOC2FPGA);
-		}
-
-		if (mask & LWHPS2FPGA_MASK)
-		{
-			idlereq_clr_mask |= IDLE_DATA_LWSOC2FPGA;
-			idleack_mask |= IDLE_DATA_LWSOC2FPGA;
-			brgmodrst |= RSTMGR_FIELD(BRG, LWHPS2FPGA);
-		}
-
+	if (brgmodrst) {
 		/* Clear idle request */
 		mmio_setbits_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_SET),
 			idlereq_clr_mask);
@@ -254,46 +277,12 @@ int socfpga_bridges_disable(uint32_t mask)
 		}
 	}
 
-	brgmodrst = 0;
-#if PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
-	if (mask & F2SDRAM0_MASK)
-	{
-		f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM0_IDLEREQ;
-		f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM0_FORCE_DRAIN;
-		f2s_en |= FLAGOUTSETCLR_F2SDRAM0_ENABLE;
-		f2s_idleack |= FLAGINTSTATUS_F2SDRAM0_IDLEACK;
-
-		brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM0);
-	}
-	if (mask & F2SDRAM1_MASK)
-	{
-		f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM1_IDLEREQ;
-		f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM1_FORCE_DRAIN;
-		f2s_en |= FLAGOUTSETCLR_F2SDRAM1_ENABLE;
-		f2s_idleack |= FLAGINTSTATUS_F2SDRAM1_IDLEACK;
-
-		brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM1);
-	}
-	if (mask & F2SDRAM2_MASK)
-	{
-		f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM2_IDLEREQ;
-		f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM2_FORCE_DRAIN;
-		f2s_en |= FLAGOUTSETCLR_F2SDRAM2_ENABLE;
-		f2s_idleack |= FLAGINTSTATUS_F2SDRAM2_IDLEACK;
-
-		brgmodrst |= RSTMGR_FIELD(BRG, F2SSDRAM2);
-	}
-#else
-	if (mask & FPGA2SOC_MASK)
-	{
-		f2s_idlereq |= FLAGOUTSETCLR_F2SDRAM0_IDLEREQ;
-		f2s_force_drain |= FLAGOUTSETCLR_F2SDRAM0_FORCE_DRAIN;
-		f2s_en |= FLAGOUTSETCLR_F2SDRAM0_ENABLE;
-		f2s_idleack |= FLAGINTSTATUS_F2SDRAM0_IDLEACK;
-
-		brgmodrst |= RSTMGR_FIELD(BRG, FPGA2SOC);
-	}
-#endif
+	socfpga_f2s_bridge_mask(mask,
+				&brgmodrst,
+				&f2s_idlereq,
+				&f2s_force_drain,
+				&f2s_en,
+				&f2s_idleack);
 
 	if (brgmodrst == 0)
 	{
