@@ -231,11 +231,11 @@ int socfpga_bridges_enable(uint32_t mask)
 
 		mmio_clrbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
 			f2s_force_drain);
+		udelay(5);
 
 		mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
 			f2s_en);
-
-		udelay(1);
+		udelay(5);
 	}
 
 	return ret;
@@ -297,11 +297,11 @@ int socfpga_bridges_disable(uint32_t mask)
 
 		mmio_clrbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
 				f2s_en);
-		udelay(1);
+		udelay(5);
 
 		mmio_setbits_32(SOCFPGA_F2SDRAMMGR(SIDEBANDMGR_FLAGOUTSET0),
 				f2s_force_drain);
-		udelay(1);
+		udelay(5);
 
 		do {
 			/* Read response queue status to ensure it is empty */
