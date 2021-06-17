@@ -1,8 +1,8 @@
-# Intel SOCFPGA Documentation for Trusted Firmware-A
+# Intel SoC FPGA Documentation for Trusted Firmware-A
 
 ## Introduction
 
-This README file describes TF-A support for Intel SoCFPGA.
+This README file describes TF-A support for Intel SoC FPGA.
 For detailed information regarding the hardware product, please refer to
 https://www.intel.com/content/www/us/en/products/programmable/soc.html
 
@@ -22,30 +22,36 @@ https://www.intel.com/content/www/us/en/products/programmable/soc.html
 
 Version		|	Release Branch		|	TF-A Tag
 -------		|	--------------		|	--------
-Current (N)	|	socfpga_v2.4.0		|	v2.4
-N - 1		|	socfpga_v2.3		|	v2.3
-N - 2		|	socfpga_v2.1		|	v2.1
+Current (N)	|	socfpga_v2.4.1		|	v2.4
+N - 1		|	socfpga_v2.4.0		|	v2.4
+N - 2		|	socfpga_v2.3		|	v2.3
 
 ----
 
 ## 2. Device Family Support and Compatibility
 
-This section details SoCFPGA Device Family supported by TF-A and its underlying processor microarchitecture.
-Table below keeps track of Quartus version tested to be compatible with current TF-A release.
+This section details SoC FPGA and eASIC Device Family supported by TF-A and its underlying 
+processor microarchitecture. Table below keeps track of Quartus version tested 
+to be compatible with current TF-A release. All families support only BL2 and BL31
 
 
-SOCFPGA Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro Edition
----------------------	|	---------------------------	|	-------------------------------
-Stratix 10		|	Quad-core ARM Cortex-A53	|	20.1, 20.2, 20.3, 20.4
-Agilex			|	Quad-core ARM Cortex-A53	|	20.1, 20.2, 20.3, 20.4
-Diamond Mesa		|	Quad-core ARM Cortex-A53	|	Early Access
+SoC FPGA / eASIC Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro Edition
+---------------------		|	---------------------------	|	-------------------------------
+Stratix 10			|	Quad-core ARM Cortex-A53	|	21.1
+Agilex				|	Quad-core ARM Cortex-A53	|	21.1
+eASIC N5X			|	Quad-core ARM Cortex-A53	|	Early Access <sup>1</sup>
+
+----
+
+### Notes
+<sup>1</sup> eASIC N5X early access, only support BL31
 
 ----
 
 ## 3. TF-A Feature Support
 
-Hardware Feature		|	Stratix 10	|	Agilex		|	Diamond Mesa
-----------------		|	----------	|	------		|	------------
+Hardware Feature		|	Stratix 10	|	Agilex		|	eASIC N5X
+:----------------		|	:----------	|	:------		|	:------------
 SDRAM				|	Yes		|	Yes		|	No
 HPS Bridge (LWH2F, H2F, F2S)	|	Yes		|	Yes		|	No
 HPS Cold/Warm Reset		|	Yes		|	Yes		|	Yes
@@ -62,30 +68,42 @@ Synopsys I2C master controller	|	No		|	No		|	No
 
 ----
 
-FPGA Feature			|	Stratix 10	|	Agilex		|	Diamond Mesa
-------------			|	----------	|	------		|	------------
+FPGA Feature			|	Stratix 10	|	Agilex		|	eASIC N5X
+:------------			|	:----------	|	:------		|	:------------
 FPGA Configuration		|	Yes		|	Yes		|	No
-Partial Reconfiguration		|	Yes		|	No		|	No
+Partial Reconfiguration		|	Yes		|	Yes		|	No
 Remote System Update (RSU)	|	Yes		|	Yes		|	No
-FPGA Crypto Service (FCS)	|	No		|	Yes<sup>1</sup>	|	Yes<sup>1</sup>
 
 ----
 
+FCS Feature<sup>1</sup>	|	Stratix 10	|	Agilex		|	eASIC N5X<sup>2</sup>
+:------------		|	:----------	|	:------		|	:------------
+Attestation Services	|	Yes		|	Yes		|	No
+SDOS Services		|	No		|	Yes		|	No
+Single Certificate	|	No		|	Yes		|	No
+Get Provision Data	|	No		|	Yes		|	No
+Random Number Generator	|	No		|	Yes		|	No
+
+----
 ### Notes
-<sup>1</sup> Refer to section 5.3: FCS Limitation
+<sup>1</sup> FCS Feature Not supported in Intel Quartus Prime Pro 20.4
+
+<sup>2</sup> eASIC N5X only for early access and only supported in Simics software virtual Platform
 
 ----
 
 ## 4. Major Changes
 
-1. Based on TF-A version 2.4 official release
-	- Refer to docs/change-log.rst for details
+1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.4.1
+ 	- Based on TF-A version 2.4 official release
 
-2. Update FCS internal logic to align with latest firmware
-	- Decryption command now sends Owner ID as part of the direct argument
-	- Provision data now includes additional Provision Status field
-	- Configuration Status now based on the latest configuration request type
-	- Configuration type flags now dealt with bit-wise
+2. Extend the support for SMC Command
+	- Adding SMC support for Get JTAG USERCODE
+	
+3. Extend the FPGA Crypto Service (FCS) support
+	- Refer to section 3 FCS Feature
+
+4. Enable F2S bridge enable and disable support
 
 ----
 
@@ -94,19 +112,16 @@ FPGA Crypto Service (FCS)	|	No		|	Yes<sup>1</sup>	|	Yes<sup>1</sup>
 1. Uboot + TF-A Boot Flow
 	- Supported in altera-opensource/u-boot-socfpga branch:socfpga_v2020.04 onwards
 
-2. TF-A Diamond Mesa Support
+2. TF-A eASIC N5X Support
 	- Current release only have support for BL31
-	- Hence TF-A only usable as secure monitor for Diamond Mesa platform
+	- Hence TF-A only usable as secure monitor for eASIC N5X platform
 
-3. FPGA Crypto Service (FCS) Limitation
-	- Not supported in Intel Quartus Prime Pro 20.4 release
-	- Only supported in Simics software virtual platform
-
-4. Vendor Authorized Boot (VAB)
+3. Vendor Authorized Boot (VAB)
 	- Not supported for TF-A + UEFI boot flow for this release
 	- BL2 -> BL31 -> UEFI -> Linux
 
-5. Double-Bit Error Handling in EL3
+4. Double-Bit Error Handling in EL3
 	- Linux EDAC framework failure in triggering DBE handling is reported
 	- Processor cores are trapped in EL3
 	- Fixes are delayed to next release cycle
+
