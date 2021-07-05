@@ -37,8 +37,8 @@ to be compatible with current TF-A release. All families support only BL2 and BL
 
 SoC FPGA / eASIC Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro Edition
 ---------------------		|	---------------------------	|	-------------------------------
-Stratix 10			|	Quad-core ARM Cortex-A53	|	21.1
-Agilex				|	Quad-core ARM Cortex-A53	|	21.1
+Stratix 10			|	Quad-core ARM Cortex-A53	|	19.3, 19.4, 20.1, 20.2, 20.3, 20.4, 21.1, 21.2
+Agilex				|	Quad-core ARM Cortex-A53	|	20.1, 20.2, 20.4, 20.4, 21.1, 21.2
 eASIC N5X			|	Quad-core ARM Cortex-A53	|	Early Access <sup>1</sup>
 
 ----
