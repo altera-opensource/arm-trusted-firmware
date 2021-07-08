@@ -65,6 +65,10 @@
 #define FCS_CS_FIELD_FLAG_UPDATE	BIT(1)
 #define FCS_CS_FIELD_FLAG_FINALIZE	BIT(2)
 
+#define FCS_GET_DIGEST_CMD_MAX_WORD_SIZE	7U
+#define FCS_GET_DIGEST_RESP_MAX_WORD_SIZE	19U
+#define FCS_SHA_HMAC_CRYPTO_PARAM_SIZE_OFFSET	8U
+
 /* FCS Payload Structure */
 
 typedef struct fcs_rng_payload_t {
@@ -108,6 +112,14 @@ typedef struct fcs_cs_key_payload_t {
 	uint32_t reserved1;
 	uint32_t key_id;
 } fcs_cs_key_payload;
+
+typedef struct fcs_crypto_service_data_t {
+	uint32_t session_id;
+	uint32_t context_id;
+	uint32_t key_id;
+	uint32_t crypto_param_size;
+	uint64_t crypto_param;
+} fcs_crypto_service_data;
 
 /* Functions Definitions */
 
@@ -160,6 +172,14 @@ int intel_fcs_export_crypto_service_key(uint32_t session_id, uint32_t key_id,
 int intel_fcs_remove_crypto_service_key(uint32_t session_id, uint32_t key_id,
 				uint32_t *mbox_error);
 int intel_fcs_get_crypto_service_key_info(uint32_t session_id, uint32_t key_id,
+				uint64_t dst_addr, uint32_t *dst_size,
+				uint32_t *mbox_error);
+
+int intel_fcs_get_digest_init(uint32_t session_id, uint32_t context_id,
+				uint32_t key_id, uint32_t param_size,
+				uint64_t param_data, uint32_t *mbox_error);
+int intel_fcs_get_digest_finalize(uint32_t session_id, uint32_t context_id,
+				uint32_t src_addr, uint32_t src_size,
 				uint64_t dst_addr, uint32_t *dst_size,
 				uint32_t *mbox_error);
 #endif /* SOCFPGA_FCS_H */
