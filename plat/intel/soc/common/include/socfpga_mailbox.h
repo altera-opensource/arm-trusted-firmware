@@ -52,10 +52,6 @@
 #define MBOX_RECONFIG_DATA		0x08
 #define MBOX_RECONFIG_STATUS		0x09
 
-/* HWMON Commands */
-#define MBOX_HWMON_READVOLT		0x18
-#define MBOX_HWMON_READTEMP		0x19
-
 /* QSPI Commands */
 #define MBOX_CMD_QSPI_OPEN		0x32
 #define MBOX_CMD_QSPI_CLOSE		0x33
@@ -185,10 +181,5 @@ int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, uint32_t resp_buf_len);
 int mailbox_rsu_status(uint32_t *resp_buf, uint32_t resp_buf_len);
 int mailbox_rsu_update(uint32_t *flash_offset);
 int mailbox_hps_stage_notify(uint32_t execution_stage);
-
-int mailbox_hwmon_readtemp(uint32_t chan, uint32_t *resp_buf,
-				unsigned int resp_buf_len);
-int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf,
-				unsigned int resp_buf_len);
 
 #endif /* SOCFPGA_MBOX_H */
