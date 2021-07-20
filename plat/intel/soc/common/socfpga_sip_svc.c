@@ -806,6 +806,11 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 					(uint32_t *) &x4, &mbox_error);
 		SMC_RET4(handle, status, mbox_error, x3, x4);
 
+	case INTEL_SIP_SMC_GET_ROM_PATCH_SHA384:
+		status = intel_fcs_get_rom_patch_sha384(x1, &retval64,
+							&mbox_error);
+		SMC_RET4(handle, status, mbox_error, x1, retval64);
+
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
 			cookie, handle, flags);
