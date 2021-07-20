@@ -82,6 +82,9 @@
 #define MBOX_ATTESTATION_SUBKEY		0x182
 #define MBOX_GET_MEASUREMENT		0x183
 
+/* Miscellaneous commands */
+#define MBOX_GET_ROM_PATCH_SHA384	0x1B0
+
 /* Mailbox Definitions */
 
 #define CMD_DIRECT			0
