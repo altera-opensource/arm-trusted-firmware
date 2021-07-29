@@ -105,9 +105,7 @@ static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 		}
 	}
 
-	if (!is_doorbell_triggered) {
-		mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1U);
-	}
+	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1U);
 
 	return MBOX_RET_OK;
 
