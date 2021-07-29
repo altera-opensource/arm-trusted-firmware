@@ -22,9 +22,9 @@ https://www.intel.com/content/www/us/en/products/programmable/soc.html
 
 Version		|	Release Branch		|	TF-A Tag
 -------		|	--------------		|	--------
-Current (N)	|	socfpga_v2.4.1		|	v2.4
-N - 1		|	socfpga_v2.4.0		|	v2.4
-N - 2		|	socfpga_v2.3		|	v2.3
+Current (N)	|	socfpga_v2.5.0		|	v2.5
+N - 1		|	socfpga_v2.4.1		|	v2.4
+N - 2		|	socfpga_v2.4.0		|	v2.4
 
 ----
 
@@ -37,8 +37,8 @@ to be compatible with current TF-A release. All families support only BL2 and BL
 
 SoC FPGA / eASIC Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro Edition
 ---------------------		|	---------------------------	|	-------------------------------
-Stratix 10			|	Quad-core ARM Cortex-A53	|	19.3, 19.4, 20.1, 20.2, 20.3, 20.4, 21.1, 21.2
-Agilex				|	Quad-core ARM Cortex-A53	|	20.1, 20.2, 20.3, 20.4, 21.1, 21.2
+Stratix 10			|	Quad-core ARM Cortex-A53	|	21.2
+Agilex				|	Quad-core ARM Cortex-A53	|	21.2
 eASIC N5X			|	Quad-core ARM Cortex-A53	|	Early Access <sup>1</sup>
 
 ----
@@ -94,17 +94,8 @@ Random Number Generator	|	No		|	Yes		|	No
 
 ## 4. Major Changes
 
-1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.4.1
- 	- Based on TF-A version 2.4 official release
-
-2. Extend the support for SMC Command
-	- Adding SMC support for get JTAG usercode
-	- Adding SMC support for voltage and temperature sensor
-	
-3. Extend the FPGA Crypto Service (FCS) support
-	- Refer to section 3 FCS Feature
-
-4. Enable F2S bridge enable and disable support
+1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.5.0
+	- Based on TF-A version 2.5 official release
 
 ----
 
