@@ -114,7 +114,7 @@
 #define INTEL_SIP_SMC_FCS_ECC_ALGO_MASK			0xF
 
 /* SiP Definitions */
-#define MAX_SVC_COMPLETED				0xF
+#define MAX_SVC_COMPLETED				0x3FF
 
 /* ECC DBE */
 #define WARM_RESET_WFI_FLAG				BIT(31)

@@ -518,31 +518,25 @@ static int intel_smc_get_usercode(uint32_t *user_code)
 }
 
 uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
-				uint32_t *job_id, unsigned int *resp_len,
+				uint32_t *job_id, unsigned int *ret_size,
 				uint32_t *mbox_error)
 {
-	unsigned int i;
 	int status = 0;
-	uint32_t resp_buf[MAX_SVC_COMPLETED] = {0};
+	uint32_t resp_len = size / MBOX_WORD_BYTE;
 
-	if (!is_address_in_ddr_range(addr, size)) {
+	if (resp_len > MAX_SVC_COMPLETED)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
-	}
 
-	status = mailbox_read_response(job_id, resp_buf, &size);
+	if (!is_address_in_ddr_range(addr, size))
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	status = mailbox_read_response(job_id, (uint32_t *) addr, &resp_len);
 
 	if (status == MBOX_NO_RESPONSE)
 		return INTEL_SIP_SMC_STATUS_BUSY;
 
-
-	*resp_len = size * MBOX_WORD_BYTE;
-
-	for (i = 0; i < size; i++) {
-		mmio_write_32(addr, resp_buf[i]);
-		addr += MBOX_WORD_BYTE;
-	}
-
-	flush_dcache_range(addr - *resp_len, *resp_len);
+	*ret_size = resp_len * MBOX_WORD_BYTE;
+	flush_dcache_range(addr, *ret_size);
 
 	if (status != MBOX_RET_OK) {
 		*mbox_error = -status;
