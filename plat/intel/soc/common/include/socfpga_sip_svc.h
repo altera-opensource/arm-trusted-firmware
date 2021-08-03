@@ -81,7 +81,7 @@
 #define INTEL_SIP_SMC_FCS_CNTR_SET_PREAUTH		0xC200005F
 
 /* SiP Definitions */
-#define MAX_SVC_COMPLETED				0xF
+#define MAX_SVC_COMPLETED				0x3FF
 
 /* ECC DBE */
 #define WARM_RESET_WFI_FLAG				BIT(31)
