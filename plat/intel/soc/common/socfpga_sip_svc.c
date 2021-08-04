@@ -517,22 +517,34 @@ static int intel_smc_get_usercode(uint32_t *user_code)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
-uint32_t intel_smc_service_completed(uint64_t addr, unsigned int size,
-				uint32_t *job_id, unsigned int *ret_size,
-				uint32_t *mbox_error)
+uint32_t intel_smc_service_completed(uint64_t addr, uint32_t size,
+				uint32_t mode, uint32_t *job_id,
+				uint32_t *ret_size, uint32_t *mbox_error)
 {
 	int status = 0;
 	uint32_t resp_len = size / MBOX_WORD_BYTE;
 
-	if (resp_len > MAX_SVC_COMPLETED)
+	if (resp_len > MBOX_DATA_MAX_LEN)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
 	if (!is_address_in_ddr_range(addr, size))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
-	status = mailbox_read_response(job_id, (uint32_t *) addr, &resp_len);
+	if (mode == SERVICE_COMPLETED_MODE_ASYNC) {
+		status = mailbox_read_response_async(job_id,
+				(uint32_t *) addr, &resp_len);
+	} else {
+		status = mailbox_read_response(job_id,
+				(uint32_t *) addr, &resp_len);
+
+		if (status == MBOX_NO_RESPONSE)
+			status = MBOX_BUSY;
+	}
 
 	if (status == MBOX_NO_RESPONSE)
+		return INTEL_SIP_SMC_STATUS_NO_RESPONSE;
+
+	if (status == MBOX_BUSY)
 		return INTEL_SIP_SMC_STATUS_BUSY;
 
 	*ret_size = resp_len * MBOX_WORD_BYTE;
@@ -717,7 +729,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_SERVICE_COMPLETED:
-		status = intel_smc_service_completed(x1, x2, &rcv_id,
+		status = intel_smc_service_completed(x1, x2, x3, &rcv_id,
 						&len_in_resp, &mbox_error);
 		SMC_RET4(handle, status, mbox_error, x1, len_in_resp);
 
