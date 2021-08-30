@@ -573,13 +573,8 @@ int intel_fcs_get_attestation_cert(uint32_t cert_request, uint64_t dst_addr,
 	if (mbox_error == NULL)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
-	if (cert_request < FCS_ALIAS_CERT ||
-		cert_request >
-			(FCS_ALIAS_CERT |
-			FCS_DEV_ID_SELF_SIGN_CERT |
-			FCS_DEV_ID_ENROLL_CERT |
-			FCS_ENROLL_SELF_SIGN_CERT |
-			FCS_PLAT_KEY_CERT))
+	if (cert_request < FCS_ATTEST_FIRMWARE_CERT ||
+	    cert_request > FCS_ATTEST_CERT_MAX_REQ_PARAM)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
 	if (!is_address_in_ddr_range(dst_addr, *dst_size))
@@ -608,13 +603,8 @@ int intel_fcs_create_cert_on_reload(uint32_t cert_request,
 	if (mbox_error == NULL)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
-	if (cert_request < FCS_ALIAS_CERT ||
-		cert_request >
-			(FCS_ALIAS_CERT |
-			FCS_DEV_ID_SELF_SIGN_CERT |
-			FCS_DEV_ID_ENROLL_CERT |
-			FCS_ENROLL_SELF_SIGN_CERT |
-			FCS_PLAT_KEY_CERT))
+	if (cert_request < FCS_ATTEST_FIRMWARE_CERT ||
+	    cert_request > FCS_ATTEST_CERT_MAX_REQ_PARAM)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
 	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CREATE_CERT_ON_RELOAD,
