@@ -837,7 +837,7 @@ int intel_fcs_get_digest_finalize(uint32_t session_id, uint32_t context_id,
 {
 	int status;
 	uint32_t i;
-	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t resp_len;
 	uint32_t payload[FCS_GET_DIGEST_CMD_MAX_WORD_SIZE] = {0U};
 
 	if (dst_size == NULL || mbox_error == NULL)
@@ -854,6 +854,8 @@ int intel_fcs_get_digest_finalize(uint32_t session_id, uint32_t context_id,
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		 !is_address_in_ddr_range(dst_addr, *dst_size))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	resp_len = *dst_size / MBOX_WORD_BYTE;
 
 	/* Prepare command payload */
 	i = 0;
@@ -918,7 +920,7 @@ int intel_fcs_mac_verify_finalize(uint32_t session_id, uint32_t context_id,
 {
 	int status;
 	uint32_t i;
-	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t resp_len;
 	uint32_t payload[FCS_MAC_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
 	uintptr_t mac_offset;
 
@@ -939,6 +941,8 @@ int intel_fcs_mac_verify_finalize(uint32_t session_id, uint32_t context_id,
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	resp_len = *dst_size / MBOX_WORD_BYTE;
 
 	/* Prepare command payload */
 	i = 0;
@@ -1009,7 +1013,7 @@ int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
 	int status;
 	uint32_t i;
 	uint32_t payload[FCS_ECDSA_HASH_SIGN_CMD_MAX_WORD_SIZE] = {0U};
-	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t resp_len;
 	uintptr_t hash_data_addr;
 
 	if (dst_size == NULL || mbox_error == NULL)
@@ -1022,6 +1026,8 @@ int intel_fcs_ecdsa_hash_sign_finalize(uint32_t session_id, uint32_t context_id,
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 	    !is_address_in_ddr_range(dst_addr, *dst_size))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	resp_len = *dst_size / MBOX_WORD_BYTE;
 
 	/* Prepare command payload */
 	/* Crypto header */
@@ -1088,7 +1094,7 @@ int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t session_id, uint32_t conte
 	int status;
 	uint32_t i = 0;
 	uint32_t payload[FCS_ECDSA_HASH_SIG_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
-	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t resp_len;
 	uintptr_t hash_sig_pubkey_addr;
 
 	if (dst_size == NULL || mbox_error == NULL)
@@ -1101,6 +1107,8 @@ int intel_fcs_ecdsa_hash_sig_verify_finalize(uint32_t session_id, uint32_t conte
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 	    !is_address_in_ddr_range(dst_addr, *dst_size))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	resp_len = *dst_size / MBOX_WORD_BYTE;
 
 	/* Prepare command payload */
 	/* Crypto header */
@@ -1170,7 +1178,7 @@ int intel_fcs_ecdsa_sha2_data_sign_finalize(uint32_t session_id,
 	int status;
 	int i;
 	uint32_t payload[FCS_ECDSA_SHA2_DATA_SIGN_CMD_MAX_WORD_SIZE] = {0U};
-	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t resp_len;
 
 	if (dst_size == NULL || mbox_error == NULL)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
@@ -1186,6 +1194,8 @@ int intel_fcs_ecdsa_sha2_data_sign_finalize(uint32_t session_id,
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 	    !is_address_in_ddr_range(dst_addr, *dst_size))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	resp_len = *dst_size / MBOX_WORD_BYTE;
 
 	/* Prepare command payload */
 	/* Crypto header */
@@ -1250,7 +1260,7 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_finalize(uint32_t session_id,
 	int status;
 	uint32_t i;
 	uint32_t payload[FCS_ECDSA_SHA2_DATA_SIG_VERIFY_CMD_MAX_WORD_SIZE] = {0U};
-	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t resp_len;
 	uintptr_t sig_pubkey_offset;
 
 	if (dst_size == NULL || mbox_error == NULL)
@@ -1270,6 +1280,8 @@ int intel_fcs_ecdsa_sha2_data_sig_verify_finalize(uint32_t session_id,
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 		!is_address_in_ddr_range(dst_addr, *dst_size))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	resp_len = *dst_size / MBOX_WORD_BYTE;
 
 	/* Prepare command payload */
 	/* Crypto header */
@@ -1338,7 +1350,7 @@ int intel_fcs_ecdsa_get_pubkey_finalize(uint32_t session_id, uint32_t context_id
 	int status;
 	int i;
 	uint32_t crypto_header;
-	uint32_t ret_size = *dst_size / MBOX_WORD_BYTE;
+	uint32_t ret_size;
 	uint32_t payload[FCS_ECDSA_GET_PUBKEY_MAX_WORD_SIZE] = {0U};
 
 	if (dst_size == NULL || mbox_error == NULL)
@@ -1347,6 +1359,8 @@ int intel_fcs_ecdsa_get_pubkey_finalize(uint32_t session_id, uint32_t context_id
 	if (fcs_ecdsa_get_pubkey_param.session_id != session_id ||
 		fcs_ecdsa_get_pubkey_param.context_id != context_id)
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	ret_size = *dst_size / MBOX_WORD_BYTE;
 
 	crypto_header = ((FCS_CS_FIELD_FLAG_INIT |
 			FCS_CS_FIELD_FLAG_UPDATE |
@@ -1403,7 +1417,7 @@ int intel_fcs_ecdh_request_finalize(uint32_t session_id, uint32_t context_id,
 	int status;
 	uint32_t i;
 	uint32_t payload[FCS_ECDH_REQUEST_CMD_MAX_WORD_SIZE] = {0U};
-	uint32_t resp_len = *dst_size / MBOX_WORD_BYTE;
+	uint32_t resp_len;
 	uintptr_t pubkey;
 
 	if (dst_size == NULL || mbox_error == NULL)
@@ -1416,6 +1430,8 @@ int intel_fcs_ecdh_request_finalize(uint32_t session_id, uint32_t context_id,
 	if (!is_address_in_ddr_range(src_addr, src_size) ||
 	    !is_address_in_ddr_range(dst_addr, *dst_size))
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+
+	resp_len = *dst_size / MBOX_WORD_BYTE;
 
 	/* Prepare command payload */
 	i = 0;
