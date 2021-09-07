@@ -176,8 +176,7 @@ int intel_fcs_random_number_gen_ext(uint32_t session_id, uint32_t context_id,
 				uint32_t size, uint32_t *send_id);
 uint32_t intel_fcs_send_cert(uint64_t addr, uint64_t size,
 				uint32_t *send_id);
-uint32_t intel_fcs_get_provision_data(uint64_t addr, uint64_t *fcs_size,
-				uint32_t *mbox_error);
+uint32_t intel_fcs_get_provision_data(uint32_t *send_id);
 uint32_t intel_fcs_cntr_set_preauth(uint8_t counter_type,
 				int32_t counter_value,
 				uint32_t test_bit,
