@@ -794,9 +794,8 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_FCS_GET_PROVISION_DATA:
-		status = intel_fcs_get_provision_data(x1, &retval64,
-							&mbox_error);
-		SMC_RET4(handle, status, mbox_error, x1, retval64);
+		status = intel_fcs_get_provision_data(&send_id);
+		SMC_RET1(handle, status);
 
 	case INTEL_SIP_SMC_FCS_CNTR_SET_PREAUTH:
 		status = intel_fcs_cntr_set_preauth(x1, x2, x3,
