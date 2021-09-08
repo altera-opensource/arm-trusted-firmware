@@ -100,11 +100,15 @@ Random Number Generator	|	No		|	Yes		|	No
 2. Extend the support for SMC Command
 	- Adding SMC support for get JTAG usercode
 	- Adding SMC support for voltage and temperature sensor
+	- Adding SMC support for get ROM Patch SHA384
 	
 3. Extend the FPGA Crypto Service (FCS) support
 	- Refer to section 3 FCS Feature
 
 4. Enable F2S bridge enable and disable support
+
+5. Add the flexibility for BL2 and BL31 to choose UART0 or UART1
+   based on macro PLAT_INTEL_UART_BASE in platform_def.h
 
 ----
 
