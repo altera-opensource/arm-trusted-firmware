@@ -39,12 +39,7 @@ SoC FPGA / eASIC Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro
 ---------------------		|	---------------------------	|	-------------------------------
 Stratix 10			|	Quad-core ARM Cortex-A53	|	21.2
 Agilex				|	Quad-core ARM Cortex-A53	|	21.2
-eASIC N5X			|	Quad-core ARM Cortex-A53	|	Early Access <sup>1</sup>
-
-----
-
-### Notes
-<sup>1</sup> eASIC N5X early access, only support BL31
+eASIC N5X			|	Quad-core ARM Cortex-A53	|	21.2
 
 ----
 
@@ -76,19 +71,20 @@ Remote System Update (RSU)	|	Yes		|	Yes		|	No
 
 ----
 
-FCS Feature<sup>1</sup>	|	Stratix 10	|	Agilex		|	eASIC N5X<sup>2</sup>
+FCS Feature<sup>1</sup>	|	Stratix 10	|	Agilex		|	eASIC N5X
 :------------		|	:----------	|	:------		|	:------------
 Attestation Services	|	Yes		|	Yes		|	No
-SDOS Services		|	No		|	Yes		|	No
+SDOS Services		|	No		|	Yes		|	Yes
 Single Certificate	|	No		|	Yes		|	No
-Get Provision Data	|	No		|	Yes		|	No
-Random Number Generator	|	No		|	Yes		|	No
+Get Provision Data	|	No		|	Yes		|	Yes
+Random Number Generator	|	No		|	Yes		|	Yes
+AES Encryption and Decryption	|	No		|	Yes		|	No
+SHA2 / HMAC Authentication Service	|	No		|	Yes		|	No
+ECDSA Signing and Verification	|	No		|	Yes		|	No
 
 ----
 ### Notes
 <sup>1</sup> FCS Feature Not supported in Intel Quartus Prime Pro 20.4
-
-<sup>2</sup> eASIC N5X only for early access and only supported in Simics software virtual Platform
 
 ----
 
@@ -96,6 +92,14 @@ Random Number Generator	|	No		|	Yes		|	No
 
 1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.5.0
 	- Based on TF-A version 2.5 official release
+
+2. Extend the FPGA Crypto Service (FCS) support for Agilex
+	- Attestation Services
+	- AES Encryption and Decryption
+	- SHA2 / HMAC Authentication Service
+	- ECDSA Signing and Verification
+
+3. Change get_provision_data to asynchronous.
 
 ----
 
