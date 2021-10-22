@@ -99,7 +99,11 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 	- SHA2 / HMAC Authentication Service
 	- ECDSA Signing and Verification
 
-3. Change get_provision_data to asynchronous.
+3. Extend the support for SMC command
+	- Change get_provision_data to asynchronous.
+	- Add SMC support for returning SiP SVC major and minor version
+		* Major version: Increase if there is any backward compatibility issue.
+		* Minor version: Increase if there is new SMC function ID being added in a new branch.
 
 ----
 
