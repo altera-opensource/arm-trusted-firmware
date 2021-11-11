@@ -22,9 +22,9 @@ https://www.intel.com/content/www/us/en/products/programmable/soc.html
 
 Version		|	Release Branch		|	TF-A Tag
 -------		|	--------------		|	--------
-Current (N)	|	socfpga_v2.5.0		|	v2.5
-N - 1		|	socfpga_v2.4.1		|	v2.4
-N - 2		|	socfpga_v2.4.0		|	v2.4
+Current (N)	|	socfpga_v2.5.1		|	v2.5
+N - 1		|	socfpga_v2.5.0		|	v2.5
+N - 2		|	socfpga_v2.4.1		|	v2.4
 
 ----
 
@@ -90,20 +90,8 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 
 ## 4. Major Changes
 
-1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.5.0
+1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.5.1
 	- Based on TF-A version 2.5 official release
-
-2. Extend the FPGA Crypto Service (FCS) support for Agilex
-	- Attestation Services
-	- AES Encryption and Decryption
-	- SHA2 / HMAC Authentication Service
-	- ECDSA Signing and Verification
-
-3. Extend the support for SMC command
-	- Change get_provision_data to asynchronous.
-	- Add SMC support for returning SiP SVC major and minor version
-		* Major version: Increase if there is any backward compatibility issue.
-		* Minor version: Increase if there is new SMC function ID being added in a new branch.
 
 ----
 
