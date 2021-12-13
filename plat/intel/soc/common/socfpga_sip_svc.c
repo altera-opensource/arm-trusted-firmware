@@ -573,7 +573,7 @@ uint32_t intel_smc_service_completed(uint64_t addr, uint32_t size,
 }
 
 /* Miscellaneous HPS services */
-static uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
+uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
 {
 	int status = 0;
 
@@ -603,7 +603,7 @@ static uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
  * This function is responsible for handling all SiP calls from the NS world
  */
 
-uintptr_t sip_smc_handler(uint32_t smc_fid,
+uintptr_t sip_smc_handler_v1(uint32_t smc_fid,
 			 u_register_t x1,
 			 u_register_t x2,
 			 u_register_t x3,
@@ -1013,6 +1013,26 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
 			cookie, handle, flags);
 	}
+}
+
+uintptr_t sip_smc_handler(uint32_t smc_fid,
+			 u_register_t x1,
+			 u_register_t x2,
+			 u_register_t x3,
+			 u_register_t x4,
+			 void *cookie,
+			 void *handle,
+			 u_register_t flags)
+{
+	uint32_t cmd = smc_fid & INTEL_SIP_SMC_CMD_MASK;
+
+	if (cmd >= INTEL_SIP_SMC_CMD_V2_RANGE_BEGIN &&
+	    cmd <= INTEL_SIP_SMC_CMD_V2_RANGE_END)
+		return sip_smc_handler_v2(smc_fid, x1, x2, x3, x4,
+			cookie, handle, flags);
+	else
+		return sip_smc_handler_v1(smc_fid, x1, x2, x3, x4,
+			cookie, handle, flags);
 }
 
 DECLARE_RT_SVC(
