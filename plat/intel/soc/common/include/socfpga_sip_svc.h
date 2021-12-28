@@ -23,6 +23,14 @@
 #define INTEL_SIP_SMC_CMD_V2_RANGE_BEGIN		0x400
 #define INTEL_SIP_SMC_CMD_V2_RANGE_END			0x4FF
 
+/* SiP V2 protocol header */
+#define INTEL_SIP_SMC_HEADER_JOB_ID_MASK		0xF
+#define INTEL_SIP_SMC_HEADER_JOB_ID_OFFSET		0U
+#define INTEL_SIP_SMC_HEADER_CID_MASK			0xF
+#define INTEL_SIP_SMC_HEADER_CID_OFFSET			4U
+#define INTEL_SIP_SMC_HEADER_VERSION_MASK		0xF
+#define INTEL_SIP_SMC_HEADER_VERSION_OFFSET		60U
+
 /* SMC SiP service function identifier for version 1 */
 
 /* FPGA Reconfig */
@@ -141,6 +149,10 @@
 #define INTEL_SIP_SMC_V2_REG_UPDATE			0xC2000403
 #define INTEL_SIP_SMC_V2_HPS_SET_BRIDGES		0xC2000404
 
+/* V2: Mailbox function identifier */
+#define INTEL_SIP_SMC_V2_MAILBOX_SEND_COMMAND		0xC2000420
+#define INTEL_SIP_SMC_V2_MAILBOX_POLL_RESPONSE		0xC2000421
+
 /* SMC function IDs for SiP Service queries */
 #define SIP_SVC_CALL_COUNT	0x8200ff00
 #define SIP_SVC_UID		0x8200ff01
@@ -168,7 +180,7 @@ typedef enum {
 } config_type;
 
 /* Function Definitions */
-
+bool is_size_4_bytes_aligned(uint32_t size);
 bool is_address_in_ddr_range(uint64_t addr, uint64_t size);
 
 /* ECC DBE */

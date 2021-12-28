@@ -22,7 +22,7 @@ static fcs_crypto_service_data fcs_sha2_data_sig_verify_param;
 static fcs_crypto_service_data fcs_ecdsa_get_pubkey_param;
 static fcs_crypto_service_data fcs_ecdh_request_param;
 
-static bool is_size_4_bytes_aligned(uint32_t size)
+bool is_size_4_bytes_aligned(uint32_t size)
 {
 	if (size % MBOX_WORD_BYTE) {
 		return false;

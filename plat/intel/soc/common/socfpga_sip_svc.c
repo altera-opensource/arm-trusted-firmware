@@ -546,7 +546,7 @@ uint32_t intel_smc_service_completed(uint64_t addr, uint32_t size,
 
 	if (mode == SERVICE_COMPLETED_MODE_ASYNC) {
 		status = mailbox_read_response_async(job_id,
-				(uint32_t *) addr, &resp_len);
+				NULL, (uint32_t *) addr, &resp_len, 0);
 	} else {
 		status = mailbox_read_response(job_id,
 				(uint32_t *) addr, &resp_len);
