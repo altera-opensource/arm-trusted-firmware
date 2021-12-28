@@ -173,8 +173,9 @@ int mailbox_read_response(unsigned int *job_id, uint32_t *response,
 	return MBOX_NO_RESPONSE;
 }
 
-int mailbox_read_response_async(unsigned int *job_id, uint32_t *response,
-				unsigned int *resp_len)
+int mailbox_read_response_async(unsigned int *job_id, uint32_t *header,
+				uint32_t *response, unsigned int *resp_len,
+				uint8_t ignore_client_id)
 {
 	uint32_t rin;
 	uint32_t rout;
@@ -207,8 +208,12 @@ int mailbox_read_response_async(unsigned int *job_id, uint32_t *response,
 			mailbox_resp_ctr.index++;
 			ret_resp_len--;
 		} else {
-			if (MBOX_RESP_CLIENT_ID(resp_data) != MBOX_ATF_CLIENT_ID)
-				return MBOX_WRONG_ID;
+			if (!ignore_client_id) {
+				if (MBOX_RESP_CLIENT_ID(resp_data) != MBOX_ATF_CLIENT_ID) {
+					*resp_len = 0;
+					return MBOX_WRONG_ID;
+				}
+			}
 
 			*job_id = MBOX_RESP_JOB_ID(resp_data);
 			ret_resp_len = MBOX_RESP_LEN(resp_data);
@@ -221,6 +226,10 @@ int mailbox_read_response_async(unsigned int *job_id, uint32_t *response,
 	}
 
 	if (is_done) {
+
+		/* copy header data to input address if applicable */
+		if (header)
+			*header = mailbox_resp_ctr.payload->header;
 
 		/* copy response data to input buffer if applicable */
 		ret_resp_len = MBOX_RESP_LEN(mailbox_resp_ctr.payload->header);
@@ -246,6 +255,7 @@ int mailbox_read_response_async(unsigned int *job_id, uint32_t *response,
 		return MBOX_RET_OK;
 	}
 
+	*resp_len = 0;
 	return (mailbox_resp_ctr.flag & MBOX_PAYLOAD_FLAG_BUSY) ? MBOX_BUSY : MBOX_NO_RESPONSE;
 }
 
@@ -369,6 +379,12 @@ int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 		*resp_len = total_resp_len;
 
 	return MBOX_RET_OK;
+}
+
+int mailbox_send_cmd_async_ext(uint32_t header_cmd, uint32_t *args,
+			unsigned int len)
+{
+	return fill_mailbox_circular_buffer(header_cmd, args, len);
 }
 
 int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
