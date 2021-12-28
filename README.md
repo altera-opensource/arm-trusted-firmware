@@ -93,6 +93,10 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.5.1
 	- Based on TF-A version 2.5 official release
 
+2. Add new SiP SVC SMC V2 protocol
+	- Extend seperated SMC function ID for non-mailbox and mailbox commands,
+	  ranged from 0x400 to 0x4FF, the support will be started using by Zephyr
+
 ----
 
 ## 5. Known Issues and Limitation
