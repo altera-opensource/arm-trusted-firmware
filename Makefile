@@ -11,7 +11,7 @@ VERSION_MAJOR			:= 2
 VERSION_MINOR			:= 6
 
 # Intel SOCFPGA Release Version
-VERSION_RELEASE			:= 1
+VERSION_RELEASE			:= 0_rc
 
 # Default goal is build all images
 .DEFAULT_GOAL			:= all
