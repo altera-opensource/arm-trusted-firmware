@@ -6,13 +6,17 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include "socfpga_plat_def.h"
+#ifdef SOCFPGA_GIC_V3
+#include <drivers/arm/gicv3.h>
+#else
 #include <drivers/arm/gicv2.h>
+#endif
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 
 #include "socfpga_mailbox.h"
-#include "socfpga_plat_def.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"
 
@@ -62,7 +66,12 @@ void socfpga_pwr_domain_off(const psci_power_state_t *target_state)
 			__func__, i, target_state->pwr_domain_state[i]);
 
 	/* Prevent interrupts from spuriously waking up this cpu */
+#ifdef SOCFPGA_GIC_V3
+	gicv3_cpuif_disable(plat_my_core_pos());
+#else
 	gicv2_cpuif_disable();
+#endif
+
 }
 
 /*******************************************************************************
@@ -93,12 +102,16 @@ void socfpga_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 
+	/* Enable the gic cpu interface */
+#ifdef SOCFPGA_GIC_V3
+	gicv3_cpuif_enable(plat_my_core_pos());
+#else
 	/* Program the gic per-cpu distributor or re-distributor interface */
 	gicv2_pcpu_distif_init();
 	gicv2_set_pe_target_mask(plat_my_core_pos());
-
 	/* Enable the gic cpu interface */
 	gicv2_cpuif_enable();
+#endif
 }
 
 /*******************************************************************************
@@ -155,7 +168,11 @@ static int socfpga_system_reset2(int is_vendor, int reset_type,
 		mailbox_reset_cold();
 	}
 	/* disable cpuif */
+#ifdef SOCFPGA_GIC_V3
+	gicv3_cpuif_disable(plat_my_core_pos());
+#else
 	gicv2_cpuif_disable();
+#endif
 
 	/* Store magic number */
 	mmio_write_32(L2_RESET_DONE_REG, L2_RESET_DONE_STATUS);
