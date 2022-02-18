@@ -14,6 +14,9 @@
 #include <services/arm_arch_svc.h>
 #include <smccc_helpers.h>
 #include <tools_share/firmware_encrypted.h>
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#endif
 
 /*
  * The following platform functions are weakly defined. The Platforms
