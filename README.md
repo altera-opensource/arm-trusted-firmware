@@ -93,6 +93,15 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.6.0
 	- Based on TF-A version 2.6 official release
 
+2. Extend the FPGA Crypto Service (FCS) support for large file size
+	- AES Encryption and Decryption
+	- ECDSA SHA-2 Data Signing and Signature Verifying
+	- HMAC SHA-2 Get Digest and MAC Verifying
+
+3. Bug fixing
+	- Need to flush response data in cache to memory at the end of
+	  INTEL_SIP_SMC_MBOX_SENC_CMD SMC call
+
 ----
 
 ## 5. Known Issues and Limitation
