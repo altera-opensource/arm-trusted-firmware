@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2022-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,8 +19,13 @@
 
 #include "socfpga_mailbox.h"
 #include "socfpga_reset_manager.h"
+#include "agilex5_power_manager.h"
 #include "socfpga_sip_svc.h"
 
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+void socfpga_wakeup_secondary_cpu(unsigned int cpu_id);
+extern void plat_secondary_cold_boot_setup(void);
+#endif
 
 /*******************************************************************************
  * plat handler called when a CPU is about to enter standby.
@@ -42,16 +48,23 @@ void socfpga_cpu_standby(plat_local_state_t cpu_state)
 int socfpga_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned int cpu_id = plat_core_pos_by_mpidr(mpidr);
+	//unsigned int fused_cpu_id = (mmio_read_32(AGX5_PWRMGR(MPU_BOOTCONFIG)) & AGX5_PWRMGR_CPU_POWER_STATE_MASK) >> 1;
 
-	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
+	//VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
 
+	/* check cpu_id validity (0-3) and if the cpu_id is being fused by SDM, return INTERN_FAIL */
+	//if ((cpu_id == -1) || (fused_cpu_id & cpu_id))
 	if (cpu_id == -1)
 		return PSCI_E_INTERN_FAIL;
 
-	mmio_write_64(PLAT_CPUID_RELEASE, cpu_id);
-
 	/* release core reset */
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+	bl31_plat_set_secondary_cpu_entrypoint(cpu_id);
+#else
 	mmio_setbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
+	mmio_write_64(PLAT_CPUID_RELEASE, cpu_id);
+#endif
+
 	return PSCI_E_SUCCESS;
 }
 
@@ -68,6 +81,7 @@ void socfpga_pwr_domain_off(const psci_power_state_t *target_state)
 	/* Prevent interrupts from spuriously waking up this cpu */
 #ifdef SOCFPGA_GIC_V3
 	gicv3_cpuif_disable(plat_my_core_pos());
+	//bl31_plat_set_secondary_cpu_off();
 #else
 	gicv2_cpuif_disable();
 #endif
@@ -80,15 +94,9 @@ void socfpga_pwr_domain_off(const psci_power_state_t *target_state)
  ******************************************************************************/
 void socfpga_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	unsigned int cpu_id = plat_my_core_pos();
-
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
-
-	/* assert core reset */
-	mmio_setbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
-
 }
 
 /*******************************************************************************
@@ -104,11 +112,12 @@ void socfpga_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 	/* Enable the gic cpu interface */
 #ifdef SOCFPGA_GIC_V3
+	gicv3_rdistif_init(plat_my_core_pos());
 	gicv3_cpuif_enable(plat_my_core_pos());
 #else
 	/* Program the gic per-cpu distributor or re-distributor interface */
-	gicv2_pcpu_distif_init();
-	gicv2_set_pe_target_mask(plat_my_core_pos());
+	//gicv2_pcpu_distif_init();
+	//gicv2_set_pe_target_mask(plat_my_core_pos());
 	/* Enable the gic cpu interface */
 	gicv2_cpuif_enable();
 #endif
@@ -123,14 +132,9 @@ void socfpga_pwr_domain_on_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 void socfpga_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
-	unsigned int cpu_id = plat_my_core_pos();
-
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
-
-	/* release core reset */
-	mmio_clrbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
 }
 
 /*******************************************************************************
@@ -151,11 +155,12 @@ static void __dead2 socfpga_system_reset(void)
 
 	memcpy(addr_buf, &intel_rsu_update_address,
 			sizeof(intel_rsu_update_address));
-
-	if (intel_rsu_update_address)
+	if (intel_rsu_update_address) {
 		mailbox_rsu_update(addr_buf);
-	else
+	}
+	else {
 		mailbox_reset_cold();
+	}
 
 	while (1)
 		wfi();
@@ -164,9 +169,8 @@ static void __dead2 socfpga_system_reset(void)
 static int socfpga_system_reset2(int is_vendor, int reset_type,
 					u_register_t cookie)
 {
-	if (cold_reset_for_ecc_dbe()) {
-		mailbox_reset_cold();
-	}
+	mailbox_reset_warm(reset_type);
+
 	/* disable cpuif */
 #ifdef SOCFPGA_GIC_V3
 	gicv3_cpuif_disable(plat_my_core_pos());
@@ -182,9 +186,6 @@ static int socfpga_system_reset2(int is_vendor, int reset_type,
 
 	/* Enable handshakes */
 	mmio_setbits_32(SOCFPGA_RSTMGR(HDSKEN), RSTMGR_HDSKEN_SET);
-
-	/* Reset L2 module */
-	mmio_setbits_32(SOCFPGA_RSTMGR(COLDMODRST), 0x100);
 
 	while (1)
 		wfi();

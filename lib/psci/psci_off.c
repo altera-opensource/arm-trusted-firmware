@@ -51,7 +51,7 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 * This function must only be called on platforms where the
 	 * CPU_OFF platform hooks have been implemented.
 	 */
-	assert(psci_plat_pm_ops->pwr_domain_off != NULL);
+	//assert(psci_plat_pm_ops->pwr_domain_off != NULL);
 
 	/* Construct the psci_power_state for CPU_OFF */
 	psci_set_power_off_state(&state_info);

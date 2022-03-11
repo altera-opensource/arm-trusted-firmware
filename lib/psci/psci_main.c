@@ -211,7 +211,7 @@ int psci_cpu_off(void)
 	 * The only error cpu_off can return is E_DENIED. So check if that's
 	 * indeed the case.
 	 */
-	assert(rc == PSCI_E_DENIED);
+	//assert(rc == PSCI_E_DENIED);
 
 	return rc;
 }
