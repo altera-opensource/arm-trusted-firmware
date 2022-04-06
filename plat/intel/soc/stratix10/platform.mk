@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
-# Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+# Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -45,7 +45,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/stratix10/soc/s10_clock_manager.c	\
 		plat/intel/soc/stratix10/soc/s10_memory_controller.c	\
 		plat/intel/soc/stratix10/soc/s10_pinmux.c		\
-                plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
+		plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/common/socfpga_storage.c			\
 		plat/intel/soc/common/soc/socfpga_emac.c		\
@@ -60,6 +60,7 @@ BL31_SOURCES	+=	\
 		lib/cpus/aarch64/aem_generic.S				\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/common/plat_psci_common.c				\
+		plat/intel/soc/stratix10/soc/s10_clock_manager.c	\
 		plat/intel/soc/stratix10/bl31_plat_setup.c	 	\
 		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_sip_svc.c			\

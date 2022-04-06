@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,6 +30,13 @@
 
 #define SOCFPGA_CCU_NOC_REG_BASE		0xf7000000
 #define SOCFPGA_F2SDRAMMGR_REG_BASE		0xf8024000
+
+/* Platform specific system counter */
+/* 
+ * In N5X the clk init is done in Uboot SPL. 
+ * BL31 shall bypass the clk init and only provides other APIs.
+ */
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	(400)
 
 #endif /* PLAT_SOCFPGA_DEF_H */
 

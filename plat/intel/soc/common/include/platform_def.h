@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -192,7 +192,7 @@
  * System counter frequency related constants
  ******************************************************************************/
 #define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(400000000)
-#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	(400)
+#define PLAT_SYS_COUNTER_CONVERT_TO_MHZ	(1000000)
 
 #define PLAT_INTEL_SOCFPGA_GICD_BASE	PLAT_GICD_BASE
 #define PLAT_INTEL_SOCFPGA_GICC_BASE	PLAT_GICC_BASE

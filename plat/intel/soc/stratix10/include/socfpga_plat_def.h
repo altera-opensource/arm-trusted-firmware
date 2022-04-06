@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,6 +31,10 @@
 #define SOCFPGA_SOC2FPGA_SCR_REG_BASE		0xffd21200
 #define SOCFPGA_LWSOC2FPGA_SCR_REG_BASE		0xffd21300
 
+/* Platform specific system counter */
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	get_cpu_clk()
+
+uint32_t get_cpu_clk(void);
 
 #endif /* PLATSOCFPGA_DEF_H */
 

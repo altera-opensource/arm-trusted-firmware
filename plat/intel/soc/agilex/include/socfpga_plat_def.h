@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,6 +31,11 @@
 #define SOCFPGA_L4_SYS_SCR_REG_BASE             0xffd21100
 #define SOCFPGA_SOC2FPGA_SCR_REG_BASE           0xffd21200
 #define SOCFPGA_LWSOC2FPGA_SCR_REG_BASE         0xffd21300
+
+/* Platform specific system counter */
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	get_cpu_clk()
+
+uint32_t get_cpu_clk(void);
 
 #endif /* PLAT_SOCFPGA_DEF_H */
 
