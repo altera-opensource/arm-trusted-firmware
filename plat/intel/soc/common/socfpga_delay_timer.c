@@ -35,8 +35,6 @@ void socfpga_delay_timer_init_args(void)
 	plat_timer_ops.clk_div		= PLAT_SYS_COUNTER_FREQ_IN_MHZ;
 
 	timer_init(&plat_timer_ops);
-
-	NOTICE("BL31: MPU clock frequency: %d mHz\n", plat_timer_ops.clk_div);
 }
 
 void socfpga_delay_timer_init(void)
