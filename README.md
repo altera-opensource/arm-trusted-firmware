@@ -93,6 +93,10 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.6.1
 	- Based on TF-A version 2.6 official release
 
+2. Clean up
+	- Remove unused printout in delay timer initialization during bl31 setup
+	  and fix checkpatch warning
+
 ----
 
 ## 5. Known Issues and Limitation
