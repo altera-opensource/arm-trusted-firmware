@@ -37,9 +37,9 @@ to be compatible with current TF-A release. All families support only BL2 and BL
 
 SoC FPGA / eASIC Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro Edition
 ---------------------		|	---------------------------	|	-------------------------------
-Stratix 10			|	Quad-core ARM Cortex-A53	|	21.2
-Agilex				|	Quad-core ARM Cortex-A53	|	21.2
-eASIC N5X			|	Quad-core ARM Cortex-A53	|	21.2
+Stratix 10			|	Quad-core ARM Cortex-A53	|	22.2
+Agilex				|	Quad-core ARM Cortex-A53	|	22.2
+eASIC N5X			|	Quad-core ARM Cortex-A53	|	22.2
 
 ----
 
@@ -96,6 +96,9 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 2. Clean up
 	- Remove unused printout in delay timer initialization during bl31 setup
 	  and fix checkpatch warning
+
+3. Update timer init divider via CPU frequency for N5X
+	- Update the timer init diviver with CPU frequency instead of hardcoded value
 
 ----
 
