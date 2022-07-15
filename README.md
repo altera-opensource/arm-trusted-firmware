@@ -93,6 +93,16 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.7.0
 	- Based on TF-A version 2.7 official release
 
+2. Implement timer init divider via CPU frequency for N5X
+
+3. Bug fixing on previous upstream gap
+	- fix UART baudrate and clock
+	- fix MAC verify update and finalize for return response data
+	- fix asynchronous read response by copying data to input buffer
+
+3. Update checking on SEU_ERR
+	- add in printout with "ERROR" to indicate SEU_ERR instead of exiting execution
+
 ----
 
 ## 5. Known Issues and Limitation
