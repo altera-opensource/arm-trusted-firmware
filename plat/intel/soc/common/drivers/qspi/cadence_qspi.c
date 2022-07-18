@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <drivers/console.h>
 
 #include "cadence_qspi.h"
+#include "socfpga_plat_def.h"
 
 #define LESS(a, b)   (((a) < (b)) ? (a) : (b))
 #define MORE(a, b)   (((a) > (b)) ? (a) : (b))

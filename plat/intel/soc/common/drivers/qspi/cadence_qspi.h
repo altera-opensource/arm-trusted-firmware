@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,8 +9,6 @@
 #define CAD_QSPI_H
 
 #define CAD_QSPI_MICRON_N25Q_SUPPORT		1
-
-#define CAD_QSPI_OFFSET				0xff8d2000
 
 #define CAD_INVALID				-1
 #define CAD_QSPI_ERROR				-2
@@ -37,8 +35,6 @@
 #define CAD_QSPI_CFG_IDLE			(1U << 31)
 #define CAD_QSPI_CFG_SELCLKPHASE_CLR_MSK	0xfffffffb
 #define CAD_QSPI_CFG_SELCLKPOL_CLR_MSK		0xfffffffd
-
-#define CAD_QSPIDATA_OFST			0xff900000
 
 #define CAD_QSPI_DELAY				0xc
 #define CAD_QSPI_DELAY_CSSOT(x)			(((x) & 0xff) << 0)
