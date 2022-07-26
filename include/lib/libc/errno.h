@@ -164,6 +164,8 @@
 #define	ENOTRECOVERABLE	95		/* State not recoverable */
 #define	EOWNERDEAD	96		/* Previous owner died */
 
-#define	ELAST		96		/* Must be equal largest errno */
+#define	EKEYREJECTED	97	/* Key was rejected by service */
+
+#define	ELAST		97		/* Must be equal largest errno */
 
 #endif /* ERRNO_H */
