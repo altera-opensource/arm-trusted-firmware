@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #ifndef CAD_WATCHDOG_H
 #define CAD_WATCHDOG_H
 
-#define WDT_BASE			(0xFFD00200)
+#define WDT_BASE			(0x10D00200)
 #define WDT_REG_SIZE_OFFSET		(0x4)
 #define WDT_MIN_CYCLES			(65536)
 #define WDT_PERIOD			(20)
