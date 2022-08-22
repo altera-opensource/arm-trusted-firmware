@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,7 @@
 #include <lib/utils_def.h>
 
 
-#define MBOX_OFFSET					0xffa30000
+#define MBOX_OFFSET					0x10a30000
 
 #define MBOX_ATF_CLIENT_ID				0x1U
 #define MBOX_MAX_JOB_ID					0xFU
@@ -33,9 +33,7 @@
 #define MBOX_DOORBELL_TO_SDM				0x400
 #define MBOX_DOORBELL_FROM_SDM				0x480
 
-
 /* Mailbox commands */
-
 #define MBOX_CMD_NOOP					0x00
 #define MBOX_CMD_SYNC					0x01
 #define MBOX_CMD_RESTART				0x02
@@ -55,7 +53,6 @@
 /* HWMON Commands */
 #define MBOX_HWMON_READVOLT				0x18
 #define MBOX_HWMON_READTEMP				0x19
-
 
 /* QSPI Commands */
 #define MBOX_CMD_QSPI_OPEN				0x32
@@ -104,7 +101,6 @@
 #define MBOX_GET_ROM_PATCH_SHA384	0x1B0
 
 /* Mailbox Definitions */
-
 #define CMD_DIRECT					0
 #define CMD_INDIRECT					1
 #define CMD_CASUAL					0
@@ -154,9 +150,7 @@
 #define MBOX_CFGSTAT_STATE_ERROR_BOOT_INFO		0xf0000007
 #define MBOX_CFGSTAT_STATE_ERROR_QSPI_ERROR		0xf0000008
 
-
 /* Mailbox Macros */
-
 #define MBOX_ENTRY_TO_ADDR(_buf, ptr)			(MBOX_OFFSET + (MBOX_##_buf##_BUFFER) \
 								+ MBOX_WORD_BYTE * (ptr))
 
@@ -190,12 +184,11 @@
 #define RSU_VERSION_ACMF_MASK				0xff00
 
 /* Config Status Macros */
-#define CONFIG_STATUS_WORD_SIZE		16U
-#define CONFIG_STATUS_FW_VER_OFFSET	1
-#define CONFIG_STATUS_FW_VER_MASK	0x00FFFFFF
+#define CONFIG_STATUS_WORD_SIZE			16U
+#define CONFIG_STATUS_FW_VER_OFFSET		1
+#define CONFIG_STATUS_FW_VER_MASK		0x00FFFFFF
 
 /* Data structure */
-
 typedef struct mailbox_payload {
 	uint32_t header;
 	uint32_t data[MBOX_DATA_MAX_LEN];
@@ -230,6 +223,7 @@ int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 			unsigned int *resp_len);
 
 void mailbox_reset_cold(void);
+void mailbox_reset_warm(uint32_t reset_type);
 void mailbox_clear_response(void);
 
 int intel_mailbox_get_config_status(uint32_t cmd, bool init_done);
