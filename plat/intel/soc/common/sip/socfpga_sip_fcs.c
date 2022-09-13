@@ -1637,15 +1637,11 @@ int intel_fcs_aes_crypt_init(uint32_t session_id, uint32_t context_id,
 	 * Since crypto param size vary between mode.
 	 * Check CBC/CTR here and limit to size 28 bytes
 	 */
-	else if ((((*param_addr_ptr & FCS_CRYPTO_BLOCK_MODE_MASK) == FCS_CRYPTO_CBC_MODE) ||
+	if ((((*param_addr_ptr & FCS_CRYPTO_BLOCK_MODE_MASK) == FCS_CRYPTO_CBC_MODE) ||
 		((*param_addr_ptr & FCS_CRYPTO_BLOCK_MODE_MASK) == FCS_CRYPTO_CTR_MODE)) &&
 		(param_size > FCS_CRYPTO_CBC_CTR_BUFFER_SIZE)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
-	else {
-		return INTEL_SIP_SMC_STATUS_REJECTED;
-	}
-	
 
 	if (mbox_error == NULL) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
