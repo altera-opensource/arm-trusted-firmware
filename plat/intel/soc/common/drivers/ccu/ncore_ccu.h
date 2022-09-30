@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,9 +7,7 @@
 #ifndef NCORE_CCU_H
 #define NCORE_CCU_H
 
-
 #define NCORE_CCU_OFFSET		0xf7000000
-
 
 /* Coherent Sub-System Address Map */
 #define NCORE_CAIU_OFFSET		0x00000
@@ -105,5 +103,7 @@ typedef struct coh_ss_id {
 
 uint32_t init_ncore_ccu(void);
 void ncore_enable_ocram_firewall(void);
+
+
 
 #endif

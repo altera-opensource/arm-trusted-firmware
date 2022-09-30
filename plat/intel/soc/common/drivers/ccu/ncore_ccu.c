@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,6 @@
 uint32_t poll_active_bit(uint32_t dir);
 
 static coh_ss_id_t subsystem_id;
-
 
 void get_subsystem_id(void)
 {
