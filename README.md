@@ -95,13 +95,33 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 
 2. Implement timer init divider via CPU frequency for N5X
 
-3. Bug fixing on previous upstream gap
-	- fix UART baudrate and clock
-	- fix MAC verify update and finalize for return response data
-	- fix asynchronous read response by copying data to input buffer
-
 3. Update checking on SEU_ERR
-	- add in printout with "ERROR" to indicate SEU_ERR instead of exiting execution
+	- Add in printout with "ERROR" to indicate SEU_ERR instead of exiting
+	execution
+
+4. ATF support on Large Blob using SMMU
+	- HSD#15011809296: extend the FPGA Crypto Service (FCS) support for
+	large file size
+		1. HMAC SHA-2 Get Digest and MAC Verifying
+		2. ECDSA SHA-2 Data Signing and Signature Verifying
+
+5. Bug fixing on
+	- EMAC bridge setting from handoff data
+		1. HSD#18022644278: Fix EMAC pin muxes
+		2. HSD#18022644290: Set FPGA interfaces based on handoff data
+	- FCS parameter size
+		1. HSD#15011923746: Fix fcs_client with increased param size
+		crashes
+	- Firewall
+		1. HSD#16018223231: Fix sp_timer0 is not disabled in firewall
+	- HWMON
+		1. HSD#14017346372: Remove checking on TEMP and VOLT checking
+		for HWMON
+
+6. Bug fixing on previous upstream gap
+	- Fix UART baudrate and clock
+	- Fix MAC Verify Update and Finalize for return response data
+	- Fix asynchronous read response by copying data to input buffer
 
 ----
 
