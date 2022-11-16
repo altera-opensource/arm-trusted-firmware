@@ -17,7 +17,7 @@
 #define PLAT_SOCFPGA_STRATIX10			1
 #define PLAT_SOCFPGA_AGILEX			2
 #define PLAT_SOCFPGA_N5X			3
-#define PLAT_SOCFPGA_EMU			EMULATOR
+#define PLAT_SOCFPGA_EMULATOR			0
 
 /* sysmgr.boot_scratch_cold4 & 5 used for CPU release address for SPL */
 #define PLAT_CPU_RELEASE_ADDR			0xffd12210
@@ -171,7 +171,7 @@
 #define CRASH_CONSOLE_BASE	PLAT_UART0_BASE
 #define PLAT_INTEL_UART_BASE	PLAT_UART0_BASE
 
-#if PLAT_SOCFPGA_EMU
+#if PLAT_SOCFPGA_EMULATOR
 #define PLAT_BAUDRATE		(4800)
 #define PLAT_UART_CLOCK		(76800)
 #else

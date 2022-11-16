@@ -321,12 +321,6 @@ else
         LOG_LEVEL	:=	20
 endif
 
-# Process Emulator flag
-$(eval $(call add_define,EMULATOR))
-ifneq (${EMULATOR}, 0)
-        EMULATOR	:=	1
-endif
-
 # Default build string (git branch and commit)
 ifeq (${BUILD_STRING},)
         BUILD_STRING  :=  $(shell git describe --always --dirty --tags 2> /dev/null)
