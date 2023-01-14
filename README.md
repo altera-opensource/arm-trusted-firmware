@@ -37,9 +37,9 @@ to be compatible with current TF-A release. All families support only BL2 and BL
 
 SoC FPGA / eASIC Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro Edition
 ---------------------		|	---------------------------	|	-------------------------------
-Stratix 10			|	Quad-core ARM Cortex-A53	|	22.3
-Agilex				|	Quad-core ARM Cortex-A53	|	22.3
-eASIC N5X			|	Quad-core ARM Cortex-A53	|	22.3
+Stratix 10			|	Quad-core ARM Cortex-A53	|	22.4
+Agilex				|	Quad-core ARM Cortex-A53	|	22.4
+eASIC N5X			|	Quad-core ARM Cortex-A53	|	22.4
 
 ----
 
@@ -92,6 +92,13 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 
 1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.7.1
 	- Based on TF-A version 2.7 official release
+
+2. Bug fixing on
+	- HSD#15012010816: fix Agilex bitstream pre-authentication checking
+	- HSD#18024553906: fix NCORE CCU snoop filter in BL2
+	- HSD#15012424497: add mailbox error return status for FCS_DECRYPTION
+	- HSD#18022217394: fix Agilex and N5X clock manager to main PLL C0
+	- Fix UART baud rate and clock
 
 ----
 
