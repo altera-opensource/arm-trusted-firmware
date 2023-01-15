@@ -10,6 +10,8 @@
 VERSION_MAJOR			:= 2
 VERSION_MINOR			:= 8
 VERSION				:= ${VERSION_MAJOR}.${VERSION_MINOR}
+# Intel SOCFPGA Release Version
+VERSION_RELEASE			:= 0_RC
 
 # Default goal is build all images
 .DEFAULT_GOAL			:= all
@@ -327,7 +329,7 @@ endif
 ifeq (${BUILD_STRING},)
         BUILD_STRING  :=  $(shell git describe --always --dirty --tags 2> /dev/null)
 endif
-VERSION_STRING    :=  v${VERSION}(${BUILD_TYPE}):${BUILD_STRING}
+VERSION_STRING    :=  v${VERSION}.${VERSION_RELEASE}(${BUILD_TYPE}):${BUILD_STRING}
 
 ifeq (${AARCH32_INSTRUCTION_SET},A32)
 TF_CFLAGS_aarch32	+=	-marm
