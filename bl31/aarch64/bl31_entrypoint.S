@@ -15,6 +15,8 @@
 
 	.globl	bl31_entrypoint
 	.globl	bl31_warm_entrypoint
+	.globl	bl31_to_bl1_entrypoint
+	.globl	plat_secondary_cpus_bl31_entry
 
 	/* -----------------------------------------------------
 	 * bl31_entrypoint() is the cold boot entrypoint,
@@ -42,6 +44,7 @@ func bl31_entrypoint
 	 * SCTLR_EL3, including the endianness, and has initialised the memory.
 	 * ---------------------------------------------------------------------
 	 */
+
 	el3_entrypoint_common					\
 		_init_sctlr=0					\
 		_warm_boot_mailbox=0				\
@@ -50,6 +53,7 @@ func bl31_entrypoint
 		_init_c_runtime=1				\
 		_exception_vectors=runtime_exceptions		\
 		_pie_fixup_size=BL31_LIMIT - BL31_BASE
+
 #else
 
 	/* ---------------------------------------------------------------------
@@ -127,7 +131,27 @@ func bl31_entrypoint
 	bl	clean_dcache_range
 
 	b	el3_exit
+
+#if RESET_TO_BL31
+	b	bl31_to_bl1_entrypoint
+#endif
+
 endfunc bl31_entrypoint
+
+func bl31_to_bl1_entrypoint
+
+	/* Disable alignment fault checking */
+	mrs	x0, sctlr_el1
+	bic	x0, x0, SCTLR_A_BIT
+	msr	sctlr_el1, x0
+
+	/* Custom plat prep_c init */
+
+	/* Set SP_EL1. We cannot use sp_el1 at EL1 */
+	msr     SPSel, #1
+	mov     sp, x24
+
+endfunc bl31_to_bl1_entrypoint
 
 	/* --------------------------------------------------------------------
 	 * This CPU has been physically powered up. It is either resuming from

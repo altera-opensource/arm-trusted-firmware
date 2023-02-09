@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,17 +34,14 @@
 func plat_secondary_cold_boot_setup
 	/* Wait until the it gets reset signal from rstmgr gets populated */
 poll_mailbox:
-	wfi
-	mov_imm	x0, PLAT_SEC_ENTRY
-	ldr	x1, [x0]
-	mov_imm	x2, PLAT_CPUID_RELEASE
-	ldr	x3, [x2]
-	mrs	x4, mpidr_el1
-	and	x4, x4, #0xff
-	cmp	x3, x4
-	b.ne	poll_mailbox
-	br	x1
+	mov_imm x0, PLAT_SEC_ENTRY
+	cbz	x0, poll_mailbox
+	br      x0
 endfunc plat_secondary_cold_boot_setup
+
+#if	((PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10) || \
+	(PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX) || \
+	(PLATFORM_MODEL == PLAT_SOCFPGA_N5X))
 
 func platform_is_primary_cpu
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
@@ -52,6 +49,21 @@ func platform_is_primary_cpu
 	cset	x0, eq
 	ret
 endfunc platform_is_primary_cpu
+
+#else
+
+func platform_is_primary_cpu
+	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
+	cmp x0, #(PLAT_PRIMARY_CPU_A76)
+	b.eq primary_cpu
+	cmp x0, #(PLAT_PRIMARY_CPU_A55)
+	b.eq primary_cpu
+primary_cpu:
+	cset	x0, eq
+	ret
+endfunc platform_is_primary_cpu
+
+#endif
 
 func plat_is_my_cpu_primary
 	mrs	x0, mpidr_el1
@@ -62,7 +74,7 @@ func plat_my_core_pos
 	mrs	x0, mpidr_el1
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
-	add	x0, x1, x0, LSR #6
+	add	x0, x1, x0, LSR #8
 	ret
 endfunc plat_my_core_pos
 
@@ -125,7 +137,6 @@ func plat_crash_console_flush
 	b	console_16550_core_flush
 endfunc plat_crash_console_flush
 
-
 	/* --------------------------------------------------------
 	 * void platform_mem_init (void);
 	 *
@@ -138,11 +149,18 @@ func platform_mem_init
 	ret
 endfunc platform_mem_init
 
+	/* --------------------------------------------------------
+	 * macro plat_secondary_cpus_bl31_entry;
+	 *
+	 * el3_entrypoint_common init param configuration.
+	 * Called very early in the secondary cores boot process.
+	 * --------------------------------------------------------
+	 */
 func plat_secondary_cpus_bl31_entry
 	el3_entrypoint_common                                   \
 		_init_sctlr=0                                   \
-		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS  \
-		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU      \
+		_warm_boot_mailbox=1  \
+		_secondary_cold_boot=1      \
 		_init_memory=1                                  \
 		_init_c_runtime=1                               \
 		_exception_vectors=runtime_exceptions		\

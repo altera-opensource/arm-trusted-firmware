@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -346,13 +346,13 @@
 		 * then it means it is a warm boot so jump to this address.
 		 * -------------------------------------------------------------
 		 */
-		bl	plat_get_my_entrypoint
-		cbz	x0, do_cold_boot
-		br	x0
-
+		.if \_init_sctlr
+			cbz	x0, do_cold_boot
+		.else
+			bl	 bl31_warm_entrypoint
+		.endif /* _init_sctlr */
 	do_cold_boot:
 	.endif /* _warm_boot_mailbox */
-
 	.if \_pie_fixup_size
 #if ENABLE_PIE
 		/*

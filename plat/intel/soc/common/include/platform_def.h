@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,9 +15,13 @@
 
 /* Platform Type */
 #define PLAT_SOCFPGA_STRATIX10			1
-#define PLAT_SOCFPGA_AGILEX			2
-#define PLAT_SOCFPGA_N5X			3
-#define PLAT_SOCFPGA_EMULATOR			0
+#define PLAT_SOCFPGA_AGILEX				2
+#define PLAT_SOCFPGA_N5X				3
+#define PLAT_SOCFPGA_AGILEX5		4
+#define SIMICS_RUN						1
+#define AGX_EDGE_EMU 					EMULATOR
+
+#define MAX_IO_MTD_DEVICES 			U(1)
 
 /* sysmgr.boot_scratch_cold4 & 5 used for CPU release address for SPL */
 #define PLAT_CPU_RELEASE_ADDR			0xffd12210
@@ -32,7 +36,12 @@
 #define L2_RESET_DONE_STATUS			0x1228E5E7
 
 /* Define next boot image name and offset */
-#define PLAT_NS_IMAGE_OFFSET			0x10000000
+/* Get non-secure image entrypoint for BL33. Zephyr and Linux */
+#ifndef PRELOADED_BL33_BASE
+#define PLAT_NS_IMAGE_OFFSET		0x80200000
+#else
+#define PLAT_NS_IMAGE_OFFSET		PRELOADED_BL33_BASE
+#endif
 #define PLAT_HANDOFF_OFFSET			0xFFE3F000
 
 /*******************************************************************************
@@ -49,7 +58,9 @@
 /*******************************************************************************
  * Generic platform constants
  ******************************************************************************/
-#define PLAT_PRIMARY_CPU			0
+#define PLAT_PRIMARY_CPU_A55			0x000
+#define PLAT_PRIMARY_CPU_A76			0x200
+#define MPU_BOOTCONFIG				0x000
 #define PLAT_SECONDARY_ENTRY_BASE		0x01f78bf0
 
 /* Size of cacheable stacks */
@@ -90,23 +101,27 @@
 #define DRAM_BASE				(0x0)
 #define DRAM_SIZE				(0x80000000)
 
-#define OCRAM_BASE				(0xFFE00000)
+#define OCRAM_BASE				(0x00000000)
 #define OCRAM_SIZE				(0x00040000)
 
-#define MEM64_BASE				(0x0100000000)
-#define MEM64_SIZE				(0x1F00000000)
+#define MEM64_BASE				(0x0080000000)
+#define MEM64_SIZE				(0x0080000000)
 
-#define DEVICE1_BASE				(0x80000000)
-#define DEVICE1_SIZE				(0x60000000)
+//128MB PSS
+#define PSS_BASE				(0x10000000)
+#define PSS_SIZE				(0x08000000)
 
-#define DEVICE2_BASE				(0xF7000000)
-#define DEVICE2_SIZE				(0x08E00000)
+//64MB MPFE
+#define MPFE_BASE				(0x18000000)
+#define MPFE_SIZE				(0x04000000)
 
-#define DEVICE3_BASE				(0xFFFC0000)
-#define DEVICE3_SIZE				(0x00008000)
+//16MB CCU
+#define CCU_BASE				(0x1C000000)
+#define CCU_SIZE				(0x01000000)
 
-#define DEVICE4_BASE				(0x2000000000)
-#define DEVICE4_SIZE				(0x0100000000)
+//1MB GIC
+#define GIC_BASE				(0x1D000000)
+#define GIC_SIZE				(0x00100000)
 
 /*******************************************************************************
  * BL31 specific defines.
@@ -117,7 +132,6 @@
  * little space for growth.
  */
 
-
 #define FIRMWARE_WELCOME_STR	"Booting Trusted Firmware\n"
 
 #define BL1_RO_BASE		(0xffe00000)
@@ -126,16 +140,18 @@
 #define BL1_RW_LIMIT		(0xffe1ffff)
 #define BL1_RW_SIZE		(0x14000)
 
-#define BL2_BASE		(0xffe00000)
-#define BL2_LIMIT		(0xffe1b000)
+#define BL2_BASE		(0x00000000)
+#define BL2_LIMIT		(0x0001b000)
 
-#define BL31_BASE		(0x1000)
-#define BL31_LIMIT		(0x81000)
+#define BL31_BASE		(0x80000000)
+#define BL31_LIMIT		(0x82000000)
 
 #define BL_DATA_LIMIT		PLAT_HANDOFF_OFFSET
 
 #define PLAT_CPUID_RELEASE	(BL_DATA_LIMIT - 16)
 #define PLAT_SEC_ENTRY		(BL_DATA_LIMIT - 8)
+
+#define CMP_ENTRY 0xFFE3EFF8
 
 #define PLAT_SEC_WARM_ENTRY	0
 
@@ -157,27 +173,23 @@
 #define CACHE_WRITEBACK_SHIFT			6
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
-#define PLAT_GIC_BASE			(0xFFFC0000)
-#define PLAT_GICC_BASE			(PLAT_GIC_BASE + 0x2000)
-#define PLAT_GICD_BASE			(PLAT_GIC_BASE + 0x1000)
-#define PLAT_GICR_BASE			0
+#define PLAT_GIC_BASE			(0x1D000000)
+#define PLAT_GICC_BASE			(PLAT_GIC_BASE + 0x20000)
+#define PLAT_GICD_BASE			(PLAT_GIC_BASE + 0x00000)
+#define PLAT_GICR_BASE			(PLAT_GIC_BASE + 0x60000)
 
 /*******************************************************************************
  * UART related constants
  ******************************************************************************/
-#define PLAT_UART0_BASE		(0xFFC02000)
-#define PLAT_UART1_BASE		(0xFFC02100)
+#define PLAT_UART0_BASE		(0x10C02000)
+#define PLAT_UART1_BASE		(0x10C02100)
+#define PLAT_UART2_BASE		(0x10C02200)
 
 #define CRASH_CONSOLE_BASE	PLAT_UART0_BASE
 #define PLAT_INTEL_UART_BASE	PLAT_UART0_BASE
 
-#if PLAT_SOCFPGA_EMULATOR
-#define PLAT_BAUDRATE		(4800)
-#define PLAT_UART_CLOCK		(76800)
-#else
 #define PLAT_BAUDRATE		(115200)
 #define PLAT_UART_CLOCK		(100000000)
-#endif
 
 /*******************************************************************************
  * PHY related constants
@@ -190,11 +202,18 @@
 /*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/
+
+#ifdef SIMICS_RUN
+#define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(80000000)
+#define PLAT_SYS_COUNTER_FREQ_IN_MHZ	(80)
+#else
 #define PLAT_SYS_COUNTER_FREQ_IN_TICKS	(400000000)
 #define PLAT_HZ_CONVERT_TO_MHZ	(1000000)
+#endif
 
 #define PLAT_INTEL_SOCFPGA_GICD_BASE	PLAT_GICD_BASE
 #define PLAT_INTEL_SOCFPGA_GICC_BASE	PLAT_GICC_BASE
+#define PLAT_INTEL_SOCFPGA_GICR_BASE	PLAT_GICR_BASE
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
@@ -239,4 +258,3 @@ struct socfpga_bl31_params {
 #endif
 
 #endif /* PLATFORM_DEF_H */
-

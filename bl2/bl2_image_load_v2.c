@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,6 +63,7 @@ struct entry_point_info *bl2_load_images(void)
 			plat_error_handler(err);
 		}
 
+#if !defined(SIMICS_RUN)
 		if ((bl2_node_info->image_info->h.attr &
 		    IMAGE_ATTRIB_SKIP_LOADING) == 0U) {
 			INFO("BL2: Loading image id %u\n", bl2_node_info->image_id);
@@ -76,6 +77,9 @@ struct entry_point_info *bl2_load_images(void)
 		} else {
 			INFO("BL2: Skip loading image id %u\n", bl2_node_info->image_id);
 		}
+#else
+	INFO("BL2: Skip loading image id %d\n", bl2_node_info->image_id);
+#endif
 
 		/* Allow platform to handle image information. */
 		err = bl2_plat_handle_post_image_load(bl2_node_info->image_id);
@@ -102,8 +106,8 @@ struct entry_point_info *bl2_load_images(void)
 	if (bl2_to_next_bl_params->head->ep_info->args.arg0 == (u_register_t)0)
 		bl2_to_next_bl_params->head->ep_info->args.arg0 =
 					(u_register_t)bl2_to_next_bl_params;
-
 	/* Flush the parameters to be passed to next image */
+
 	plat_flush_next_bl_params();
 
 	return bl2_to_next_bl_params->head->ep_info;

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2022, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -97,6 +97,8 @@ ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
 endif
 
 export Q ECHO
+
+export CFLAGS="-Wno-error"
 
 # The cert_create tool cannot generate certificates individually, so we use the
 # target 'certificates' to create them all
@@ -308,6 +310,12 @@ else
 TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	$(march64-directive)
 LD			=	$(LINKER)
+endif
+
+# Process Emulator flag
+$(eval $(call add_define,EMULATOR))
+ifneq (${EMULATOR}, 0)
+        EMULATOR	:=	1
 endif
 
 # Process Debug flag
@@ -1079,6 +1087,7 @@ $(eval $(call assert_booleans,\
         ENABLE_SYS_REG_TRACE_FOR_NS \
         ENABLE_MPMM \
         ENABLE_MPMM_FCONF \
+        EMULATOR \
         SIMICS_BUILD \
         FEATURE_DETECTION \
 	TRNG_SUPPORT \

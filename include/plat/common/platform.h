@@ -116,6 +116,8 @@ void plat_ic_clear_interrupt_pending(unsigned int id);
 unsigned int plat_ic_set_priority_mask(unsigned int mask);
 unsigned int plat_ic_get_interrupt_id(unsigned int raw);
 
+void angts_plat_secondary_cpus_bl31_entry(void);
+
 /*******************************************************************************
  * Optional common functions (may be overridden)
  ******************************************************************************/

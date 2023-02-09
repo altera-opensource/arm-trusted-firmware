@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #include <drivers/io/io_block.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_fip.h>
+#include <drivers/io/io_mtd.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_storage.h>
 #include <drivers/mmc.h>
@@ -20,6 +21,7 @@
 #include <tools_share/firmware_image_package.h>
 
 #include "socfpga_private.h"
+#include "../../../../drivers/cadence/nand/cdn_nand.h"
 
 #define PLAT_FIP_BASE		(0)
 #define PLAT_FIP_MAX_SIZE	(0x1000000)
@@ -27,10 +29,13 @@
 #define PLAT_MMC_DATA_SIZE	(0x2000)
 #define PLAT_QSPI_DATA_BASE	(0x3C00000)
 #define PLAT_QSPI_DATA_SIZE	(0x1000000)
-
+#define PLAT_NAND_DATA_BASE	(0x0200000)
+#define PLAT_NAND_DATA_SIZE	(0x1000000)
 
 static const io_dev_connector_t *fip_dev_con;
 static const io_dev_connector_t *boot_dev_con;
+
+static io_mtd_dev_spec_t nand_dev_spec;
 
 static uintptr_t fip_dev_handle;
 static uintptr_t boot_dev_handle;
@@ -147,6 +152,14 @@ void socfpga_io_setup(int boot_source)
 		fip_spec.offset = fip_spec.offset + PLAT_QSPI_DATA_BASE;
 		break;
 
+	case BOOT_SOURCE_NAND:
+		register_io_dev = &register_io_dev_mtd;
+		nand_dev_spec.ops.init = cdn_nand_init_mtd;
+		nand_dev_spec.ops.read = cdn_nand_read;
+		nand_dev_spec.ops.write = NULL;
+		fip_spec.offset = fip_spec.offset + PLAT_NAND_DATA_BASE;
+		break;
+
 	default:
 		ERROR("Unsupported boot source\n");
 		panic();
@@ -159,8 +172,13 @@ void socfpga_io_setup(int boot_source)
 	result = register_io_dev_fip(&fip_dev_con);
 	assert(result == 0);
 
-	result = io_dev_open(boot_dev_con, (uintptr_t)&boot_dev_spec,
-			&boot_dev_handle);
+	if (boot_source == BOOT_SOURCE_NAND) {
+		result = io_dev_open(boot_dev_con, (uintptr_t)&nand_dev_spec,
+								&boot_dev_handle);
+	} else {
+		result = io_dev_open(boot_dev_con, (uintptr_t)&boot_dev_spec,
+								&boot_dev_handle);
+	}
 	assert(result == 0);
 
 	result = io_dev_open(fip_dev_con, (uintptr_t)NULL, &fip_dev_handle);
