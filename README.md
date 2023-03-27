@@ -37,9 +37,9 @@ to be compatible with current TF-A release. All families support only BL2 and BL
 
 SoC FPGA / eASIC Device Family	|	Processor Microarchitecture	|	Quartus Prime Pro Edition
 ---------------------		|	---------------------------	|	-------------------------------
-Stratix 10			|	Quad-core ARM Cortex-A53	|	22.4
-Agilex				|	Quad-core ARM Cortex-A53	|	22.4
-eASIC N5X			|	Quad-core ARM Cortex-A53	|	22.4
+Stratix 10			|	Quad-core ARM Cortex-A53	|	23.1
+Agilex				|	Quad-core ARM Cortex-A53	|	23.1
+eASIC N5X			|	Quad-core ARM Cortex-A53	|	23.1
 
 ----
 
@@ -93,22 +93,29 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.8.0
 	- Based on TF-A version 2.8 official release
 
+2. Bug fixing on
+	- HSD#14015872909: Update boot scratch to indicate to Uboot is PSCI ON
+	- HSD#15012954395: fix bridge disable and reset
+	- HSD#15013038858: fix required on the pointer of the block memory to
+	fill in and the number of bytes to be set
+	- HSD#18023841483: flash dcache before mmio read
+
 ----
 
 ## 5. Known Issues and Limitation
 
 1. Uboot + TF-A Boot Flow
-	- Supported in altera-opensource/u-boot-socfpga branch:socfpga_v2020.04 onwards
+	- Supported in altera-opensource/u-boot-socfpga branch:socfpga_v2020.04
+	onwards
 
-2. TF-A eASIC N5X Support
+2. TF-A + Unified Extensible Firmware Interface (UEFI) Boot Flow
+	- UEFI is end of life
+	- It is no longer supported from version socfpga_v2.7.0 onwards
+
+3. TF-A eASIC N5X Support
 	- Current release only have support for BL31
 	- Hence TF-A only usable as secure monitor for eASIC N5X platform
 
-3. Vendor Authorized Boot (VAB)
-	- Not supported for TF-A + UEFI boot flow for this release
-	- BL2 -> BL31 -> UEFI -> Linux
-
 4. Double-Bit Error Handling in EL3
-	- Linux EDAC framework failure in triggering DBE handling is reported
-	- Processor cores are trapped in EL3
-	- Fixes are delayed to next release cycle
+	- Linux applied SMC service in EL1 which is already supported in TF-A to
+	handling Double-Bit Error in EL3
