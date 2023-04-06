@@ -22,9 +22,9 @@ https://www.intel.com/content/www/us/en/products/programmable/soc.html
 
 Version		|	Release Branch		|	TF-A Tag
 -------		|	--------------		|	--------
-Current (N)	|	socfpga_v2.8.0		|	v2.8
-N - 1		|	socfpga_v2.7.1		|	v2.7
-N - 2		|	socfpga_v2.7.0		|	v2.7
+Current (N)	|	socfpga_v2.8.1		|	v2.8
+N - 1		|	socfpga_v2.8.0		|	v2.8
+N - 2		|	socfpga_v2.7.1		|	v2.7
 
 ----
 
@@ -90,15 +90,8 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 
 ## 4. Major Changes
 
-1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.8.0
+1. Upgrade Intel SoC FPGA TF-A to version socfpga_v2.8.1
 	- Based on TF-A version 2.8 official release
-
-2. Bug fixing on
-	- HSD#14015872909: Update boot scratch to indicate to Uboot is PSCI ON
-	- HSD#15012954395: fix bridge disable and reset
-	- HSD#15013038858: fix required on the pointer of the block memory to
-	fill in and the number of bytes to be set
-	- HSD#18023841483: flash dcache before mmio read
 
 ----
 
