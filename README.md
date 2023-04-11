@@ -116,6 +116,3 @@ ECDSA Signing and Verification	|	No		|	Yes		|	No
 	- Current release only have support for BL31
 	- Hence TF-A only usable as secure monitor for eASIC N5X platform
 
-4. Double-Bit Error Handling in EL3
-	- Linux applied SMC service in EL1 which is already supported in TF-A to
-	handling Double-Bit Error in EL3
