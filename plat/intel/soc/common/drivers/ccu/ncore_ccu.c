@@ -10,6 +10,17 @@
 #include <lib/mmio.h>
 
 #include "ncore_ccu.h"
+//TODO: temp using this. Shall move to individual product folder
+#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX
+#include "agilex_system_manager.h"
+#elif PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
+#include "agilex5_system_manager.h"
+#elif PLATFORM_MODEL == PLAT_SOCFPGA_N5X
+#include "n5x_system_manager.h"
+#elif PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
+#include "s10_system_manager.h"
+#endif
+#include "socfpga_system_manager.h"
 
 uint32_t poll_active_bit(uint32_t dir);
 

@@ -12,7 +12,7 @@
 
 #include "agilex_clock_manager.h"
 #include "socfpga_handoff.h"
-#include "socfpga_system_manager.h"
+#include "agilex_system_manager.h"
 
 
 uint32_t wait_pll_lock(void)
