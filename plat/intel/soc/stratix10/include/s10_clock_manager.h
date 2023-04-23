@@ -8,6 +8,7 @@
 #define __CLOCKMANAGER_H__
 
 #include "socfpga_handoff.h"
+#include "s10_system_manager.h"
 
 #define ALT_CLKMGR				0xffd10000
 

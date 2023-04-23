@@ -11,7 +11,8 @@
 #include <drivers/delay_timer.h>
 
 #include "n5x_clock_manager.h"
-#include "socfpga_system_manager.h"
+#include "n5x_system_manager.h"
+
 
 
 uint64_t clk_get_pll_output_hz(void)
