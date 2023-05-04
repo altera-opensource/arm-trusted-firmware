@@ -170,14 +170,14 @@ static int mmc_sd_switch(unsigned int bus_width)
 	int retries = MMC_DEFAULT_MAX_RETRIES;
 	unsigned int bus_width_arg = 0;
 
-	ret = ops->prepare(0, (uintptr_t)&scr, sizeof(scr));
+	/* CMD55: Application Specific Command */
+	ret = mmc_send_cmd(MMC_CMD(55), rca << RCA_SHIFT_OFFSET,
+			   MMC_RESPONSE_R5, NULL);
 	if (ret != 0) {
 		return ret;
 	}
 
-	/* CMD55: Application Specific Command */
-	ret = mmc_send_cmd(MMC_CMD(55), rca << RCA_SHIFT_OFFSET,
-			   MMC_RESPONSE_R5, NULL);
+	ret = ops->prepare(0, (uintptr_t)&scr, sizeof(scr));
 	if (ret != 0) {
 		return ret;
 	}

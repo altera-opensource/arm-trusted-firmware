@@ -14,9 +14,9 @@
 #define MMC_BLOCK_SIZE			U(512)
 #define MMC_BLOCK_MASK			(MMC_BLOCK_SIZE - U(1))
 #define MMC_BOOT_CLK_RATE		(400 * 1000)
+#define MMC_REG_BASE			SDMMC_REG_BASE
 
 #define MMC_CMD(_x)			U(_x)
-
 #define MMC_ACMD(_x)			U(_x)
 
 #define OCR_POWERUP			BIT(31)
