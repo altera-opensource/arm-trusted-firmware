@@ -12,15 +12,6 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 //TODO: temp using this. Shall move to individual product folder
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX
-#include "agilex_system_manager.h"
-#elif PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
-#include "agilex5_system_manager.h"
-#elif PLATFORM_MODEL == PLAT_SOCFPGA_N5X
-#include "n5x_system_manager.h"
-#elif PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
-#include "s10_system_manager.h"
-#endif
 #include "socfpga_system_manager.h"
 
 static mailbox_payload_t mailbox_resp_payload;
@@ -532,8 +523,18 @@ void mailbox_hps_qspi_enable(void)
 void mailbox_reset_cold(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
-	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, NULL, 0U,
-				CMD_CASUAL, NULL, NULL);
+
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, 0U, 0U,
+				 CMD_CASUAL, NULL, NULL);
+}
+
+void mailbox_reset_warm(uint32_t reset_type)
+{
+	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
+
+	reset_type = 0x01; // Warm reset header data must be 1
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, &reset_type, 1U,
+				 CMD_CASUAL, NULL, NULL);
 }
 
 int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, unsigned int resp_buf_len)

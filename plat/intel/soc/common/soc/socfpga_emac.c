@@ -9,16 +9,6 @@
 
 #include "socfpga_emac.h"
 #include "socfpga_reset_manager.h"
-//TODO: temp using this. Shall move to individual product folder
-#if PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX
-#include "agilex_system_manager.h"
-#elif PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX5
-#include "agilex5_system_manager.h"
-#elif PLATFORM_MODEL == PLAT_SOCFPGA_N5X
-#include "n5x_system_manager.h"
-#elif PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10
-#include "s10_system_manager.h"
-#endif
 #include "socfpga_system_manager.h"
 
 void socfpga_emac_init(void)
