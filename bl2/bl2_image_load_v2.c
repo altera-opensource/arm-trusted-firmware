@@ -63,6 +63,10 @@ struct entry_point_info *bl2_load_images(void)
 			plat_error_handler(err);
 		}
 
+#if	((PLATFORM_MODEL == PLAT_SOCFPGA_STRATIX10) || \
+	(PLATFORM_MODEL == PLAT_SOCFPGA_AGILEX) || \
+	(PLATFORM_MODEL == PLAT_SOCFPGA_N5X) || \
+	(SIMICS_RUN == 1))
 		if ((bl2_node_info->image_info->h.attr &
 		    IMAGE_ATTRIB_SKIP_LOADING) == 0U) {
 			INFO("BL2: Loading image id %u\n", bl2_node_info->image_id);
@@ -76,7 +80,9 @@ struct entry_point_info *bl2_load_images(void)
 		} else {
 			INFO("BL2: Skip loading image id %u\n", bl2_node_info->image_id);
 		}
-
+#else
+	INFO("BL2: Skip loading image id %d\n", bl2_node_info->image_id);
+#endif
 		/* Allow platform to handle image information. */
 		err = bl2_plat_handle_post_image_load(bl2_node_info->image_id);
 		if (err != 0) {
@@ -102,7 +108,6 @@ struct entry_point_info *bl2_load_images(void)
 	if (bl2_to_next_bl_params->head->ep_info->args.arg0 == (u_register_t)0)
 		bl2_to_next_bl_params->head->ep_info->args.arg0 =
 					(u_register_t)bl2_to_next_bl_params;
-
 	/* Flush the parameters to be passed to next image */
 	plat_flush_next_bl_params();
 

@@ -89,9 +89,11 @@ void bl31_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 {
 	/* Perform early platform-specific setup */
 	bl31_early_platform_setup2(arg0, arg1, arg2, arg3);
+	NOTICE("BL31: bl31_setup\n");
 
 	/* Perform late platform-specific setup */
 	bl31_plat_arch_setup();
+	NOTICE("BL31: bl31_plat_arch_setup\n");
 
 #if ENABLE_FEAT_HCX
 	/*
@@ -264,6 +266,7 @@ void __init bl31_prepare_next_image_entry(void)
 	* If we are entering the Non-secure world, use
 	* 'cm_prepare_el3_exit_ns' to exit.
 	*/
+
 	if (image_type == NON_SECURE) {
 		cm_prepare_el3_exit_ns();
 	} else {
