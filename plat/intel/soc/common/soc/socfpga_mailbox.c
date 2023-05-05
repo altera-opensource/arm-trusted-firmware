@@ -680,3 +680,18 @@ int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf)
 				CMD_CASUAL, resp_buf,
 				&resp_len);
 }
+
+int mailbox_seu_err_status(uint32_t *resp_buf, unsigned int resp_buf_len)
+{
+	int ret;
+
+	ret = mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_SEU_ERR_READ, NULL, 0U,
+				CMD_CASUAL, resp_buf,
+				&resp_buf_len);
+
+	if (ret < 0) {
+		return ret;
+	}
+
+	return ret;
+}
