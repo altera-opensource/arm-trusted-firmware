@@ -77,7 +77,7 @@ int socfpga_pwr_domain_on(u_register_t mpidr)
 #else
 	if (cpu_id == 0x00) {
 		psci_boot = mmio_read_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_8));
-		psci_boot |= 0x20000; /* bit 17 */
+		psci_boot |= 0x80000; /* bit 19 */
 		mmio_write_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_8), psci_boot);
 	}
 
