@@ -2305,7 +2305,7 @@ int intel_fcs_aes_crypt_update_finalize(uint32_t session_id,
 			sizeof(fcs_aes_init_payload));
 	}
 
-	if (status < 0U) {
+	if (status < 0) {
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
 

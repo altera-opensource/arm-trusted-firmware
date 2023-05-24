@@ -730,6 +730,7 @@ static int cdns_send_cmd(struct mmc_cmd *cmd)
 
 		case SD_SELECT_CARD:
 			op = MULTI_BLK_READ;
+			break;
 
 		case SD_APP_CMD:
 
