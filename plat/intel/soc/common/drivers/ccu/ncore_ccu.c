@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2023, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,12 +69,12 @@ uint32_t coherent_agent_intfc_init(void)
 			ca_id = mmio_read_32(COH_AGENT_UNIT(ca, NCORE_CAIUIDR));
 			/* Coh Agent Snoop Enable */
 			if (CACHING_AGENT_BIT(ca_id))
-				mmio_write_32(ca_snoop_en, BIT(ca));
+				mmio_setbits_32(ca_snoop_en, BIT(ca));
 			/* Coh Agent Snoop DVM Enable */
 			ca_type = CACHING_AGENT_TYPE(ca_id);
 			if (ca_type == ACE_W_DVM || ca_type == ACE_L_W_DVM)
-				mmio_write_32(NCORE_CCU_CSR(NCORE_CSADSER0),
-				BIT(ca));
+				mmio_setbits_32(NCORE_CCU_CSR(NCORE_CSADSER0),
+						BIT(ca));
 		}
 	}
 	return 0;
