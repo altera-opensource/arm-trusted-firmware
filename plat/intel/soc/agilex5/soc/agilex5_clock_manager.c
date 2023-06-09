@@ -186,9 +186,6 @@ uint32_t get_clk_freq(uint32_t psrc_reg, uint32_t main_pllc, uint32_t per_pllc)
 	default:
 		return 0;
 	}
-	pllm_reg = CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLM;
-			pllc_reg = CLKMGR_MAINPLL + main_pllc;
-			pllglob_reg = CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB;
 
 	ref_clk = get_ref_clk(mmio_read_32(pllglob_reg));
 	mdiv = CLKMGR_PLLM_MDIV(mmio_read_32(pllm_reg));
