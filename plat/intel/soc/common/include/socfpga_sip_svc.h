@@ -17,6 +17,9 @@
 #define INTEL_SIP_SMC_RSU_ERROR					0x7
 #define INTEL_SIP_SMC_SEU_ERR_READ_ERROR		0x8
 
+/* FPGA configuration error code */
+#define INTEL_FPGA_CONFIG_NOT_DONE_ERROR		BIT(25)
+
 /* SiP mailbox error code */
 #define GENERIC_RESPONSE_ERROR					0x3FF
 
