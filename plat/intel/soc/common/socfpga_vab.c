@@ -89,7 +89,8 @@ int socfpga_vendor_authentication(void **p_image, size_t *p_size)
 		// return -ENOMEM;
 	// }
 
-	memcpy(mbox_relocate_data_addr, (uint8_t *)mbox_data_addr, mbox_data_sz * sizeof(uint32_t));
+	memcpy_s(mbox_relocate_data_addr, mbox_data_sz * sizeof(uint32_t),
+		(uint8_t *)mbox_data_addr, mbox_data_sz * sizeof(uint32_t));
 	*(uint32_t *)mbox_relocate_data_addr = 0;
 
 	do {
