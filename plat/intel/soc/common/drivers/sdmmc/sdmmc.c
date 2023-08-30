@@ -518,7 +518,7 @@ static int sdmmc_enumerate(unsigned int clk, unsigned int bus_width)
 		return ret;
 	}
 
-	memcpy(&mmc_csd, &resp_data, sizeof(resp_data));
+	memcpy_s(&mmc_csd, sizeof(resp_data), &resp_data, sizeof(resp_data));
 
 	/* CMD7: Select Card */
 	ret = sdmmc_send_cmd(MMC_CMD(7), rca << RCA_SHIFT_OFFSET,
@@ -758,7 +758,8 @@ int sdmmc_init(handoff *hoff_ptr, struct cdns_sdmmc_params *params, struct mmc_d
 		(params->bus_width == MMC_BUS_WIDTH_4) ||
 		(params->bus_width == MMC_BUS_WIDTH_8)));
 
-	memcpy(&cdns_params, params, sizeof(struct cdns_sdmmc_params));
+	memcpy_s(&cdns_params, sizeof(struct cdns_sdmmc_params), params,
+		sizeof(struct cdns_sdmmc_params));
 	cdns_params.cdn_sdmmc_dev_type = info->mmc_dev_type;
 	cdns_params.cdn_sdmmc_dev_mode = SD_DS;
 
