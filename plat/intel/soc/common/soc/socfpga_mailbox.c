@@ -696,3 +696,9 @@ int mailbox_seu_err_status(uint32_t *resp_buf, unsigned int resp_buf_len)
 				CMD_CASUAL, resp_buf,
 				&resp_buf_len);
 }
+
+int mailbox_safe_inject_seu_err(uint32_t *arg, unsigned int len)
+{
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_SAFE_INJECT_SEU_ERR, arg, len,
+			CMD_CASUAL, NULL, NULL);
+}
