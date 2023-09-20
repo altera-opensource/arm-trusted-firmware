@@ -68,6 +68,7 @@
 
 /* SEU Commands */
 #define MBOX_CMD_SEU_ERR_READ				0x3C
+#define MBOX_CMD_SAFE_INJECT_SEU_ERR				0x41
 
 /* RSU Commands */
 #define MBOX_GET_SUBPARTITION_TABLE			0x5A
@@ -253,5 +254,6 @@ int mailbox_hps_stage_notify(uint32_t execution_stage);
 int mailbox_hwmon_readtemp(uint32_t chan, uint32_t *resp_buf);
 int mailbox_hwmon_readvolt(uint32_t chan, uint32_t *resp_buf);
 int mailbox_seu_err_status(uint32_t *resp_buf, uint32_t resp_buf_len);
+int mailbox_safe_inject_seu_err(uint32_t *arg, unsigned int len);
 
 #endif /* SOCFPGA_MBOX_H */
