@@ -284,6 +284,8 @@ static bool is_fpga_config_buffer_full(void)
 
 bool is_address_in_ddr_range(uint64_t addr, uint64_t size)
 {
+	unsigned __int128 dram_max_sz = (unsigned __int128)DRAM_BASE + (unsigned __int128)DRAM_SIZE;
+
 	if (!addr && !size) {
 		return true;
 	}
@@ -293,7 +295,7 @@ bool is_address_in_ddr_range(uint64_t addr, uint64_t size)
 	if (addr < BL31_LIMIT) {
 		return false;
 	}
-	if (addr + size > DRAM_BASE + DRAM_SIZE) {
+	if (addr + size > dram_max_sz) {
 		return false;
 	}
 
