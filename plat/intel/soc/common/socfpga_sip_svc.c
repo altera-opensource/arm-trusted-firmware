@@ -697,12 +697,6 @@ uint32_t intel_hps_set_bridges(uint64_t enable, uint64_t mask)
 {
 	int status = 0;
 
-	status = mmio_read_32(SOCFPGA_SYSMGR(FPGA_CFG));
-	if ((status & SYSMGR_FPGACONFIG_RDY_MASK) !=
-		SYSMGR_FPGACONFIG_RDY_MASK) {
-		/* Returning the error if FPGA is not configured */
-		return INTEL_SIP_SMC_STATUS_ERROR | INTEL_FPGA_CONFIG_NOT_DONE_ERROR;
-	}
 	if ((enable & SOCFPGA_BRIDGE_ENABLE) != 0U) {
 		if ((enable & SOCFPGA_BRIDGE_HAS_MASK) != 0U) {
 			status = socfpga_bridges_enable((uint32_t)mask);
