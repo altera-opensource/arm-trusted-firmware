@@ -2177,7 +2177,8 @@ int intel_fcs_aes_crypt_init(uint32_t session_id, uint32_t context_id,
 	param_addr_ptr = (uint64_t *) param_addr;
 
 	/* Check if mbox_error is not NULL or 0xF or 0x3FF */
-	if (mbox_error == NULL || *mbox_error > 0xF || *mbox_error != 0x3FF) {
+	if (mbox_error == NULL || *mbox_error > 0xF ||
+		(*mbox_error != 0 && *mbox_error != 0x3FF)) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 	}
 
