@@ -19,6 +19,7 @@
 
 #include "agilex5_pinmux.h"
 #include "sdmmc.h"
+#include "socfpga_mailbox.h"
 
 static const struct mmc_ops *ops;
 static unsigned int mmc_ocr_value;
@@ -518,7 +519,8 @@ static int sdmmc_enumerate(unsigned int clk, unsigned int bus_width)
 		return ret;
 	}
 
-	memcpy_s(&mmc_csd, sizeof(resp_data), &resp_data, sizeof(resp_data));
+	memcpy_s(&mmc_csd, sizeof(resp_data) / MBOX_WORD_BYTE,
+		&resp_data, sizeof(resp_data) / MBOX_WORD_BYTE);
 
 	/* CMD7: Select Card */
 	ret = sdmmc_send_cmd(MMC_CMD(7), rca << RCA_SHIFT_OFFSET,
