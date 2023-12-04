@@ -21,7 +21,7 @@
 #include "combophy/combophy.h"
 
 /* Pinmux configuration */
-void nand_pinmux_config(void)
+static void nand_pinmux_config(void)
 {
 	mmio_write_32(SOCFPGA_PINMUX(PIN0SEL), SOCFPGA_PINMUX_SEL_NAND);
 	mmio_write_32(SOCFPGA_PINMUX(PIN1SEL), SOCFPGA_PINMUX_SEL_NAND);
@@ -38,23 +38,14 @@ void nand_pinmux_config(void)
 	mmio_write_32(SOCFPGA_PINMUX(PIN12SEL), SOCFPGA_PINMUX_SEL_NAND);
 	mmio_write_32(SOCFPGA_PINMUX(PIN13SEL), SOCFPGA_PINMUX_SEL_NAND);
 	mmio_write_32(SOCFPGA_PINMUX(PIN14SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN16SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN17SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN18SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN19SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN20SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN21SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN22SEL), SOCFPGA_PINMUX_SEL_NAND);
-	mmio_write_32(SOCFPGA_PINMUX(PIN23SEL), SOCFPGA_PINMUX_SEL_NAND);
 }
 
 int nand_init(handoff *hoff_ptr)
 {
-	int result = 0;
+	(void)(hoff_ptr);
 
 	/* NAND pin mux configuration */
 	nand_pinmux_config();
-	result = cdns_nand_host_init();
 
-	return result;
+	return cdns_nand_host_init();
 }

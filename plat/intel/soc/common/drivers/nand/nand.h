@@ -10,8 +10,6 @@
 #include <lib/mmio.h>
 #include "socfpga_handoff.h"
 
-
-
 /* FUNCTION DEFINATION */
 /*
  * @brief Nand controller initialization function
@@ -20,6 +18,5 @@
  * Return: 0 on success, a negative errno on failure
  */
 int nand_init(handoff *hoff_ptr);
-void nand_pinmux_config(void);
 
 #endif
