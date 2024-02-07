@@ -429,7 +429,7 @@ int socfpga_bridges_enable(uint32_t mask)
 		 * To request handshake
 		 * Write Reset Manager hdskreq[soc2fpga_flush_req] = 1
 		 */
-		INFO("Set S2F hdskreq ...\n");
+		VERBOSE("Set S2F hdskreq ...\n");
 		mmio_setbits_32(SOCFPGA_RSTMGR(HDSKREQ),
 			RSTMGR_HDSKREQ_SOC2FPGAREQ);
 
@@ -446,24 +446,33 @@ int socfpga_bridges_enable(uint32_t mask)
 		}
 
 		/*
+		 * To assert reset
+		 * Write Reset Manager hdskreq[soc2fpga_flush_req] = 0
+		 */
+		VERBOSE("Assert S2F ...\n");
+		mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
+			RSTMGR_BRGMODRST_SOC2FPGA);
+
+		/*
 		 * To clear idle request
 		 * Write Reset Manager hdskreq[soc2fpga_flush_req] = 0
 		 */
 		INFO("Clear S2F hdskreq ...\n");
-		mmio_clrbits_32(SOCFPGA_RSTMGR(HDSKREQ),
+		mmio_setbits_32(SOCFPGA_RSTMGR(HDSKREQ),
 			RSTMGR_HDSKREQ_SOC2FPGAREQ);
 
 		/*
-		 * To assert reset
-		 * Write Reset Manager hdskreq[soc2fpga_flush_req] = 0
+		 * To clear ack status
+		 * Write Reset Manager hdskack[soc2fpga_flush_ack] = 1
+		 * This bit is W1S/W1C
 		 */
-		INFO("Assert S2F ...\n");
-		mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
-			RSTMGR_BRGMODRST_SOC2FPGA);
+		VERBOSE("Clear S2F hdskack ...\n");
+		mmio_setbits_32(SOCFPGA_RSTMGR(HDSKACK),
+			RSTMGR_HDSKACK_SOC2FPGAACK);
 
+		/* ToDo: Shall use udelay for product release */
 		for (delay = 0; delay < 1000; delay++) {
-			// TODO: To update when hardware board is ready
-			// dummy delay
+			/* dummy delay */
 		}
 
 		/*
@@ -498,24 +507,33 @@ int socfpga_bridges_enable(uint32_t mask)
 		}
 
 		/*
-		 * To clear idle request
-		 * Write Reset Manager hdskreq[lwsoc2fpga_flush_req] = 0
-		 */
-		INFO("Clear LWS2F hdskreq ...\n");
-		mmio_clrbits_32(SOCFPGA_RSTMGR(HDSKREQ),
-			RSTMGR_HDSKREQ_LWSOC2FPGAREQ);
-
-		/*
 		 * To assert reset
 		 * Write Reset Manager brgmodrst[lwsoc2fpga] = 1
 		 */
-		INFO("Assert LWS2F ...\n");
+		VERBOSE("Assert LWS2F ...\n");
 		mmio_setbits_32(SOCFPGA_RSTMGR(BRGMODRST),
 			RSTMGR_BRGMODRST_LWHPS2FPGA);
 
+		/*
+		 * To clear idle request
+		 * Write Reset Manager hdskreq[lwsoc2fpga_flush_req] = 0
+		 */
+		VERBOSE("Clear LWS2F hdskreq ...\n");
+		mmio_setbits_32(SOCFPGA_RSTMGR(HDSKREQ),
+			RSTMGR_HDSKREQ_LWSOC2FPGAREQ);
+
+		/*
+		 * To clear ack status
+		 * Write Reset Manager hdskack[lwsoc2fpga_flush_ack] = 1
+		 * This bit is W1S/W1C
+		 */
+		VERBOSE("Clear LWS2F hdskack ...\n");
+		mmio_setbits_32(SOCFPGA_RSTMGR(HDSKACK),
+			RSTMGR_HDSKACK_LWSOC2FPGAACK);
+
+		/* ToDo: Shall use udelay for product release */
 		for (delay = 0; delay < 1000; delay++) {
-			// TODO: To update when hardware board is ready
-			//dummy delay
+			/* dummy delay */
 		}
 
 		/*
